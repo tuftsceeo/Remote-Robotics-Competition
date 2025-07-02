@@ -1,0 +1,153 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.tracker-container {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.video-section {
+    flex: 2;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.data-section {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.camera-controls {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border-left: 4px solid #007acc;
+}
+
+.camera-controls select {
+    padding: 8px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 200px;
+}
+
+.camera-info {
+    background: #e8f4ff;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.video-container {
+    position: relative;
+    margin: 20px 0;
+}
+
+video, canvas {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+canvas {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    pointer-events: none;
+    border: 2px solid rgba(0, 255, 0, 0.5);
+}
+
+.controls {
+    margin: 10px 0;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 4px;
+    background: #007acc;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+    background: #005a9e;
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.robot-data, .detection-status {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border-left: 4px solid #007acc;
+}
+
+.debug-section {
+    background: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#debug-log {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+.channel-section {
+    background: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#connection-status {
+    padding: 10px;
+    background: #e8f4ff;
+    border-left: 4px solid #007acc;
+    border-radius: 4px;
+    margin: 10px 0;
+    font-family: monospace;
+}
+
+.status-connected {
+    border-left-color: #28a745 !important;
+    background: #d4edda !important;
+}
+
+.status-error {
+    border-left-color: #dc3545 !important;
+    background: #f8d7da !important;
+}
