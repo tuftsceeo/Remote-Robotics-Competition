@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Robot Tracker - Computer Vision</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <script src="https://docs.opencv.org/4.8.0/opencv.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='robot-tracker' terminal></script>
+    
+    <h1>Robot Tracking System</h1>
+    
+    <div class="tracker-container">
+        <div class="video-section">
+            <h3>Camera Feed</h3>
+            <video id="video" width="640" height="480" autoplay></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
+            <div class="controls">
+                <button id="start-btn">Start Tracking</button>
+                <button id="stop-btn">Stop Tracking</button>
+                <button id="calibrate-btn">Calibrate Field</button>
+            </div>
+        </div>
+        
+        <div class="data-section">
+            <h3>Robot Data</h3>
+            <div id="robot-info">
+                <div class="robot-data">
+                    <h4>Robot Position</h4>
+                    <div id="position">X: 0, Y: 0, Z: 0</div>
+                    <div id="rotation">Rotation: 0°</div>
+                    <div id="timestamp">Last Update: --</div>
+                </div>
+                <div class="detection-status">
+                    <h4>Detection Status</h4>
+                    <div id="fps">FPS: 0</div>
+                    <div id="tags-detected">Tags: 0</div>
+                    <div id="tracking-status">Status: Ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="channel-section">
+        <h3>Channel Connection</h3>
+        <div id='all_things_channels'></div>
+        <div id='connection-status'>Ready to connect...</div>
+    </div>
+</body>
+</html>
