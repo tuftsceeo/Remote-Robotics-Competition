@@ -1,3 +1,5 @@
+/* AprilTag Tracker Styles */
+
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
@@ -7,14 +9,16 @@ body {
 h1 {
     text-align: center;
     color: #333;
+    margin-bottom: 30px;
 }
 
-.tracker-container {
+.container {
     display: flex;
     gap: 20px;
     margin: 20px 0;
 }
 
+/* Video Section */
 .video-section {
     flex: 2;
     background: white;
@@ -31,34 +35,33 @@ h1 {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* Camera Controls */
 .camera-controls {
     background: #f8f9fa;
     padding: 15px;
     margin: 10px 0;
     border-radius: 4px;
     border-left: 4px solid #007acc;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
 }
 
 .camera-controls select {
     padding: 8px;
-    margin: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
     min-width: 200px;
+    flex: 1;
 }
 
-.camera-info {
-    background: #e8f4ff;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 12px;
-}
-
+/* Video Container */
 .video-container {
     position: relative;
     margin: 20px 0;
+    display: flex;
+    justify-content: center;
 }
 
 video, canvas {
@@ -72,11 +75,15 @@ canvas {
     top: 10px;
     left: 0;
     pointer-events: none;
-    border: 2px solid rgba(0, 255, 0, 0.5);
+    border: 2px solid rgba(0, 255, 0, 0.3);
 }
 
+/* Buttons */
 .controls {
     margin: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 button {
@@ -87,15 +94,34 @@ button {
     background: #007acc;
     color: white;
     cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
 }
 
 button:hover:not(:disabled) {
     background: #005a9e;
+    transform: translateY(-1px);
 }
 
 button:disabled {
     background: #ccc;
     cursor: not-allowed;
+    transform: none;
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+/* Status Elements */
+.status {
+    background: #f8f9fa;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border-left: 4px solid #007acc;
+    font-family: monospace;
+    transition: all 0.3s ease;
 }
 
 .robot-data, .detection-status {
@@ -106,6 +132,27 @@ button:disabled {
     border-left: 4px solid #007acc;
 }
 
+.robot-data h4, .detection-status h4 {
+    margin-top: 0;
+    color: #333;
+}
+
+/* Detection Info */
+.detection-info {
+    background: #e8f4ff;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    border-left: 3px solid #007acc;
+    transition: all 0.2s ease;
+}
+
+.detection-info:hover {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+/* Debug Section */
 .debug-section {
     background: white;
     padding: 20px;
@@ -123,8 +170,10 @@ button:disabled {
     max-height: 200px;
     overflow-y: auto;
     border: 1px solid #ddd;
+    line-height: 1.4;
 }
 
+/* Channel Section */
 .channel-section {
     background: white;
     padding: 20px;
@@ -140,6 +189,7 @@ button:disabled {
     border-radius: 4px;
     margin: 10px 0;
     font-family: monospace;
+    transition: all 0.3s ease;
 }
 
 .status-connected {
@@ -150,4 +200,133 @@ button:disabled {
 .status-error {
     border-left-color: #dc3545 !important;
     background: #f8d7da !important;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-ready { background-color: #6c757d; }
+.status-active { 
+    background-color: #28a745; 
+    animation: pulse 2s infinite;
+}
+.status-error { background-color: #dc3545; }
+.status-warning { background-color: #ffc107; }
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+@keyframes detection-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.detection-active {
+    animation: detection-pulse 1s infinite;
+}
+
+/* Camera Info */
+.camera-info {
+    background: #e8f4ff;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .camera-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .camera-controls select {
+        min-width: auto;
+    }
+    
+    video, canvas {
+        width: 100%;
+        max-width: 480px;
+    }
+    
+    .controls {
+        justify-content: center;
+    }
+    
+    button {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        margin: 10px;
+    }
+    
+    .video-section, .data-section {
+        padding: 15px;
+    }
+    
+    button {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007acc;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    button {
+        border: 2px solid #000;
+    }
+    
+    .status {
+        border-width: 2px;
+    }
+    
+    .detection-info {
+        border-width: 2px;
+    }
 }
