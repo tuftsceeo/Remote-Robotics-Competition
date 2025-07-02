@@ -16,13 +16,30 @@
     
     <div class="tracker-container">
         <div class="video-section">
-            <h3>Camera Feed</h3>
-            <video id="video" width="640" height="480" autoplay></video>
-            <canvas id="canvas" width="640" height="480"></canvas>
+            <h3>Camera Setup</h3>
+            <div class="camera-controls">
+                <button id="detect-cameras-btn">Detect Cameras</button>
+                <select id="camera-select">
+                    <option value="">Select a camera...</option>
+                </select>
+                <button id="test-camera-btn">Test Selected Camera</button>
+            </div>
+            
+            <div class="camera-info">
+                <div id="camera-status">Camera Status: Not connected</div>
+                <div id="camera-details"></div>
+            </div>
+            
+            <div class="video-container">
+                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                <canvas id="canvas" width="640" height="480"></canvas>
+            </div>
+            
             <div class="controls">
-                <button id="start-btn">Start Tracking</button>
-                <button id="stop-btn">Stop Tracking</button>
+                <button id="start-btn" disabled>Start Tracking</button>
+                <button id="stop-btn" disabled>Stop Tracking</button>
                 <button id="calibrate-btn">Calibrate Field</button>
+                <button id="snapshot-btn">Take Snapshot</button>
             </div>
         </div>
         
@@ -43,6 +60,11 @@
                 </div>
             </div>
         </div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>Debug Information</h3>
+        <div id="debug-log"></div>
     </div>
     
     <div class="channel-section">
