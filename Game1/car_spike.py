@@ -10,13 +10,11 @@ import motor
 import ujson
 
 def callback(data):
-    try:
-        msg = ujson.loads(data.decode())
-        x = msg.get('x', 0)
-        y = msg.get('y', 0)
-        print("Received x: {:.2f}, y: {:.2f}, z: {:.2f}".format(x, y, msg.get('z', 0)))
-
-        threshold = 0.2  # minimum tilt to start moving (adjust as needed)
+    try:        
+       
+        msg = data.decode()
+        
+        threshold = 0.2
         max_speed = 100
 
         left_speed = 0
