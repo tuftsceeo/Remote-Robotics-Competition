@@ -14,7 +14,6 @@ def callback(data):
         controller_data = json.loads(decoded_data)
         
         # x and y SWITCHED bc my controller is built sideways
-        # AND negative because of robot orientation
         x_raw = float(controller_data.get("y", 0))
         y_raw = float(controller_data.get("x", 0))
         
