@@ -9,11 +9,13 @@ import ujson
 
 def callback(data):
     try:   
+        print("RECEIVED: ", data)
         decoded_data = data.decode()
         controller_data = json.loads(decoded_data)
         
-        # SWITCHED bc my controller is built sideways
-        x_raw = 0 - float(controller_data.get("y", 0)) # negative because of robot orientation
+        # x and y SWITCHED bc my controller is built sideways
+        # AND negative because of robot orientation
+        x_raw = float(controller_data.get("y", 0))
         y_raw = float(controller_data.get("x", 0))
         
         print("X_raw:", x_raw, "Y_raw:", y_raw)
@@ -28,7 +30,7 @@ def callback(data):
         
         print("X_normalized:", x, "Y_normalized:", y)
         
-        threshold = 0.1  # Deadzone threshold (adjust as needed)
+        threshold = 0.1  # Deadzone threshold
         max_speed = 100  # Maximum motor speed
         
         left_speed = 0
@@ -55,8 +57,6 @@ def callback(data):
         left_speed = max(-max_speed, min(max_speed, left_speed))
         right_speed = max(-max_speed, min(max_speed, right_speed))
         
-        # Send commands to motors
-        # Note: You may need to adjust the signs based on your motor wiring
         motor.run(port.A, int(left_speed))
         motor.run(port.B, int(right_speed))
         
