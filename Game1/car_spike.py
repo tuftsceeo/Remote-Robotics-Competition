@@ -10,9 +10,33 @@ import motor
 import ujson
 
 def callback(data):
-    try:        
-       
-        msg = data.decode()
+    try:   
+        print("DATA: ", data)
+
+        topic = payload_dict['topic']
+        value = payload_dict['value']
+    
+        try:
+            decoded_data = data.decode()
+            print("Success 1")
+            print(decoded_data)
+        except Exception as e:
+            print("ERROR DECODING: ", e)
+
+        
+        y = ""
+        x = ""
+
+        if 'y' in data:
+            print("The JSON string contains 'y'.")
+        else:
+            print("The JSON string does not contain 'y'.")
+        
+        if 'y' in data:
+            y = data.decode()
+        
+        if 'x' in data:
+            x = data.decode()
         
         threshold = 0.2
         max_speed = 100
