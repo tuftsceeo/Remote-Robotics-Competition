@@ -1,4 +1,3 @@
-
 import time
 from hub import motion_sensor
 from BLE_CEEO import Yell, Listen
@@ -6,44 +5,25 @@ import time
 import json
 from hub import light_matrix, port
 import motor
-
 import ujson
 
 def callback(data):
     try:   
         print("DATA: ", data)
-
-        topic = payload_dict['topic']
-        value = payload_dict['value']
-    
-        try:
-            decoded_data = data.decode()
-            print("Success 1")
-            print(decoded_data)
-        except Exception as e:
-            print("ERROR DECODING: ", e)
-
+        decoded_data = data.decode()
+        print("Decoded data:", decoded_data)
         
-        y = ""
-        x = ""
-
-        if 'y' in data:
-            print("The JSON string contains 'y'.")
-        else:
-            print("The JSON string does not contain 'y'.")
+        controller_data = json.loads(decoded_data)
+        x = float(controller_data.get("x", 0))
+        y = float(controller_data.get("y", 0))
         
-        if 'y' in data:
-            y = data.decode()
-        
-        if 'x' in data:
-            x = data.decode()
+        print("X:", x, "Y:", y)
         
         threshold = 0.2
         max_speed = 100
-
         left_speed = 0
         right_speed = 0
-
+        
         # Forward/backward: Y-axis
         if abs(y) > threshold:
             speed = min(abs(y) * max_speed, max_speed)
@@ -55,7 +35,7 @@ def callback(data):
                 # Tilt backward → move backward
                 left_speed = -speed
                 right_speed = speed
-
+        
         # Turning: X-axis adds differential to left/right speeds
         if abs(x) > threshold:
             turn_speed = min(abs(x) * max_speed, max_speed)
@@ -67,16 +47,18 @@ def callback(data):
                 # Tilt left → turn left by speeding up right motor
                 left_speed -= turn_speed
                 right_speed += turn_speed
-
+        
         # Clip speeds to [-100, 100]
         left_speed = max(-max_speed, min(max_speed, left_speed))
         right_speed = max(-max_speed, min(max_speed, right_speed))
-
+        
         # Send commands to motors
         motor.run(port.A, int(left_speed))
         motor.run(port.B, int(right_speed))
         print("Motors: left {}, right {}".format(int(left_speed), int(right_speed)))
-
+        
+    except json.JSONDecodeError as e:
+        print("JSON decode error:", e)
     except Exception as e:
         print("Callback error: {}".format(e))
 
