@@ -9,52 +9,57 @@ import ujson
 
 def callback(data):
     try:   
-        print("DATA: ", data)
         decoded_data = data.decode()
-        print("Decoded data:", decoded_data)
-        
         controller_data = json.loads(decoded_data)
-        x = float(controller_data.get("x", 0))
-        y = float(controller_data.get("y", 0))
         
-        print("X:", x, "Y:", y)
+        # SWITCHED bc my controller is built sideways
+        x_raw = 0 - float(controller_data.get("y", 0)) # negative because of robot orientation
+        y_raw = float(controller_data.get("x", 0))
         
-        threshold = 0.2
-        max_speed = 100
+        print("X_raw:", x_raw, "Y_raw:", y_raw)
+        
+        # Normalize values from [-700, 700] to [-1, 1]
+        x = x_raw / 1000.0
+        y = y_raw / 1000.0
+        
+        # Clamp values to [-1, 1] in case of slight overshoot
+        x = max(-1.0, min(1.0, x))
+        y = max(-1.0, min(1.0, y))
+        
+        print("X_normalized:", x, "Y_normalized:", y)
+        
+        threshold = 0.1  # Deadzone threshold (adjust as needed)
+        max_speed = 100  # Maximum motor speed
+        
         left_speed = 0
         right_speed = 0
         
-        # Forward/backward: Y-axis
-        if abs(y) > threshold:
-            speed = min(abs(y) * max_speed, max_speed)
-            if y > 0:
-                # Tilt forward → move forward
-                left_speed = speed
-                right_speed = -speed
-            else:
-                # Tilt backward → move backward
-                left_speed = -speed
-                right_speed = speed
+        if abs(x) < threshold:
+            x = 0
+        if abs(y) < threshold:
+            y = 0
         
-        # Turning: X-axis adds differential to left/right speeds
-        if abs(x) > threshold:
-            turn_speed = min(abs(x) * max_speed, max_speed)
-            if x > 0:
-                # Tilt right → turn right by speeding up left motor
-                left_speed += turn_speed
-                right_speed -= turn_speed
-            else:
-                # Tilt left → turn left by speeding up right motor
-                left_speed -= turn_speed
-                right_speed += turn_speed
+        # Base speed from y-axis (forward/backward)
+        base_speed = y * max_speed
+        
+        # Turn adjustment from x-axis
+        turn_adjustment = x * max_speed
+        
+        # Calculate individual wheel speeds
+        # Positive y = forward, negative y = backward
+        # Positive x = turn right, negative x = turn left
+        left_speed = base_speed + turn_adjustment
+        right_speed = base_speed - turn_adjustment
         
         # Clip speeds to [-100, 100]
         left_speed = max(-max_speed, min(max_speed, left_speed))
         right_speed = max(-max_speed, min(max_speed, right_speed))
         
         # Send commands to motors
+        # Note: You may need to adjust the signs based on your motor wiring
         motor.run(port.A, int(left_speed))
         motor.run(port.B, int(right_speed))
+        
         print("Motors: left {}, right {}".format(int(left_speed), int(right_speed)))
         
     except json.JSONDecodeError as e:
