@@ -66,7 +66,9 @@ def sendData():
     last_accel_y = accel_y_ms2
 
     # SEND IT!
-    message = {'x': round(position_x, 3), 'y': round(position_y, 3)}    
+    final_x = round(position_x, 3)
+    final_y = round(position_y, 3)
+    message = {'x': final_x, 'y': final_y, 'yaw': yaw}    
     return str(json.dumps(message))
 
 def reset_position():
