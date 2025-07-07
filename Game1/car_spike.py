@@ -12,55 +12,47 @@ def callback(data):
         print("RECEIVED: ", data)
         decoded_data = data.decode()
         controller_data = json.loads(decoded_data)
-        
+
         # x and y SWITCHED bc my controller is built sideways
         x_raw = float(controller_data.get("y", 0))
         y_raw = float(controller_data.get("x", 0))
-        
-        print("X_raw:", x_raw, "Y_raw:", y_raw)
-        
-        # Normalize values from [-700, 700] to [-1, 1]
         x = x_raw / 1000.0
         y = y_raw / 1000.0
-        
+
         # Clamp values to [-1, 1] in case of slight overshoot
         x = max(-1.0, min(1.0, x))
         y = max(-1.0, min(1.0, y))
-        
+
         print("X_normalized:", x, "Y_normalized:", y)
-        
-        threshold = 0.1  # Deadzone threshold
-        max_speed = 100  # Maximum motor speed
-        
+
+        threshold = 0.05
+        max_speed = 1000
         left_speed = 0
         right_speed = 0
-        
+
         if abs(x) < threshold:
             x = 0
         if abs(y) < threshold:
             y = 0
-        
-        # Base speed from y-axis (forward/backward)
+
         base_speed = y * max_speed
-        
-        # Turn adjustment from x-axis
         turn_adjustment = x * max_speed
-        
+
         # Calculate individual wheel speeds
         # Positive y = forward, negative y = backward
         # Positive x = turn right, negative x = turn left
         left_speed = base_speed + turn_adjustment
         right_speed = base_speed - turn_adjustment
-        
+
         # Clip speeds to [-100, 100]
         left_speed = max(-max_speed, min(max_speed, left_speed))
         right_speed = max(-max_speed, min(max_speed, right_speed))
-        
+
         motor.run(port.A, int(left_speed))
         motor.run(port.B, int(right_speed))
-        
+
         print("Motors: left {}, right {}".format(int(left_speed), int(right_speed)))
-        
+
     except json.JSONDecodeError as e:
         print("JSON decode error:", e)
     except Exception as e:
