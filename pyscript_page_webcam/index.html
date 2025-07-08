@@ -1,372 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>AprilTag Robot Tracker</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
-    <script async src="https://docs.opencv.org/4.8.0/opencv.js"></script>
-    
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
-        .container { display: flex; gap: 20px; }
-        .video-section { flex: 2; background: white; padding: 20px; border-radius: 8px; }
-        .data-section { flex: 1; background: white; padding: 20px; border-radius: 8px; }
-        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; background: #007acc; color: white; cursor: pointer; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        video, canvas { border: 2px solid #ddd; border-radius: 4px; margin: 10px 0; }
-        canvas { position: absolute; pointer-events: none; border-color: rgba(0,255,0,0.3); }
-        .status { padding: 10px; margin: 10px 0; background: #f8f9fa; border-radius: 4px; font-family: monospace; }
-        .detection-info { background: #e8f4ff; padding: 10px; margin: 5px 0; border-radius: 4px; }
-        #debug-log { max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; }
-        .status-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
-        .status-ready { background-color: #6c757d; }
-        .status-active { background-color: #28a745; }
-        .status-error { background-color: #dc3545; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AprilTag Detector</title>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.03.1/pyscript.css">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
 </head>
 <body>
-    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='apriltag-tracker' terminal></script>
-    
-    <h1>AprilTag Robot Tracker</h1>
+    <py-config src="./pyscript.toml"></py-config>
+    <py-script src="./main.py"></py-script>
     
     <div class="container">
-        <div class="video-section">
-            <h3>Camera & Detection</h3>
-            
-            <div>
-                <button id="start-camera">Start Camera</button>
-                <button id="stop-camera" disabled>Stop Camera</button>
-                <button id="start-detection" disabled>Start Detection</button>
-                <button id="stop-detection" disabled>Stop Detection</button>
-            </div>
-            
-            <div class="status" id="camera-status">
-                <span class="status-indicator status-ready"></span>Camera: Ready
-            </div>
-            <div class="status" id="opencv-status">
-                <span class="status-indicator status-ready"></span>OpenCV: Loading...
-            </div>
-            <div class="status" id="python-status">
-                <span class="status-indicator status-ready"></span>Python: Loading...
-            </div>
-            
-            <div class="status" id="python-debug">
-                <span class="status-indicator status-ready"></span>Python Debug: Waiting...
-            </div>
-            
-            <div style="position: relative; display: flex; justify-content: center;">
-                <video id="video" width="640" height="480" autoplay playsinline muted></video>
-                <canvas id="canvas" width="640" height="480"></canvas>
-            </div>
-        </div>
+        <header>
+            <h1>AprilTag Detector</h1>
+            <div class="status" id="status">Ready - Click Start Camera</div>
+        </header>
         
-        <div class="data-section">
-            <h3>Detection Results</h3>
-            
-            <div class="status">
-                <div>FPS: <span id="fps">0</span></div>
-                <div>AprilTags Found: <span id="tag-count">0</span></div>
-                <div>Last Update: <span id="timestamp">--</span></div>
-            </div>
-            
-            <div id="detection-results">No AprilTags detected</div>
-            
-            <h4>Debug Info</h4>
-            <div id="debug-log">Waiting for system...</div>
-            
-            <h4>JavaScript Debug</h4>
-            <div id="js-debug">JavaScript loading...</div>
-        </div>
-    </div>
-    
-    <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 8px;">
-        <h3>Channel Connection</h3>
-        <div id='all_things_channels'></div>
-        <div id='connection-status' class="status">Ready to connect...</div>
-    </div>
-
-    <script>
-        // JavaScript handles camera and OpenCV, Python handles data processing
-        let video, canvas, ctx;
-        let currentStream = null;
-        let isDetecting = false;
-        let detectionInterval = null;
-        let openCVReady = false;
-        let pythonReady = false;
-        
-        function jsDebug(message) {
-            const debugElement = document.getElementById('js-debug');
-            const timestamp = new Date().toLocaleTimeString();
-            if (debugElement) {
-                debugElement.innerHTML = `[${timestamp}] ${message}<br>` + debugElement.innerHTML;
-            }
-            console.log(`[${timestamp}] ${message}`);
-        }
-        
-        function initSystem() {
-            video = document.getElementById('video');
-            canvas = document.getElementById('canvas');
-            ctx = canvas.getContext('2d');
-            
-            // Setup button handlers
-            document.getElementById('start-camera').onclick = startCamera;
-            document.getElementById('stop-camera').onclick = stopCamera; 
-            document.getElementById('start-detection').onclick = startDetection;
-            document.getElementById('stop-detection').onclick = stopDetection;
-            
-            checkOpenCV();
-            
-            jsDebug('JavaScript initialized ✅');
-        }
-        
-        function checkOpenCV() {
-            if (typeof cv !== 'undefined') {
-                cv.onRuntimeInitialized = () => {
-                    openCVReady = true;
-                    updateStatus('opencv-status', 'active', 'OpenCV: Ready ✅');
-                    jsDebug('OpenCV ready ✅');
-                };
-            } else {
-                setTimeout(checkOpenCV, 100);
-            }
-        }
-        
-        function updateStatus(elementId, status, message) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.innerHTML = `<span class="status-indicator status-${status}"></span>${message}`;
-            }
-        }
-        
-        // Start camera
-        async function startCamera() {
-            try {
-                jsDebug('Starting camera...');
-                currentStream = await navigator.mediaDevices.getUserMedia({
-                    video: { width: 640, height: 480, frameRate: 30 }
-                });
+        <main>
+            <div class="video-section">
+                <div class="controls">
+                    <button id="start-camera">Start Camera</button>
+                    <button id="snap-photo" disabled>Take Photo</button>
+                    <button id="start-detection" disabled>Start Detection</button>
+                    <button id="stop-detection" disabled>Stop Detection</button>
+                    <button id="toggle-debug">Toggle Debug</button>
+                </div>
                 
-                video.srcObject = currentStream;
+                <div class="video-container">
+                    <video id="video" width="640" height="480" autoplay playsinline muted></video>
+                    <canvas id="canvas" width="640" height="480"></canvas>
+                </div>
+            </div>
+            
+            <div class="results-section">
+                <div class="detection-display">
+                    <h3>Detection Results</h3>
+                    <img id="result-image" alt="Detection results will appear here" style="width: 100%; max-width: 400px; height: 300px; background: #f0f0f0;">
+                </div>
                 
-                video.onloadedmetadata = () => {
-                    updateStatus('camera-status', 'active', `Camera: Active (${video.videoWidth}x${video.videoHeight})`);
-                    document.getElementById('start-camera').disabled = true;
-                    document.getElementById('stop-camera').disabled = false;
+                <div class="data-panel">
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="label">Tags Found:</span>
+                            <span id="tag-count">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">FPS:</span>
+                            <span id="fps">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="label">Total Detections:</span>
+                            <span id="total-detections">0</span>
+                        </div>
+                    </div>
                     
-                    if (openCVReady && pythonReady) {
-                        document.getElementById('start-detection').disabled = false;
-                    }
-                    jsDebug('Camera started successfully ✅');
-                };
-                
-            } catch (error) {
-                updateStatus('camera-status', 'error', 'Camera: Error');
-                jsDebug(`Camera error: ${error.message}`);
-            }
-        }
+                    <div class="detection-list" id="detection-list">
+                        <p>No AprilTags detected yet</p>
+                    </div>
+                </div>
+            </div>
+        </main>
         
-        function stopCamera() {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-                currentStream = null;
-            }
-            
-            video.srcObject = null;
-            stopDetection();
-            
-            updateStatus('camera-status', 'ready', 'Camera: Stopped');
-            document.getElementById('start-camera').disabled = false;
-            document.getElementById('stop-camera').disabled = true;
-            document.getElementById('start-detection').disabled = true;
-            
-            jsDebug('Camera stopped');
-        }
-        
-        function startDetection() {
-            if (!openCVReady || !pythonReady) {
-                jsDebug('Systems not ready for detection ❌');
-                return;
-            }
-            
-            isDetecting = true;
-            document.getElementById('start-detection').disabled = true;
-            document.getElementById('stop-detection').disabled = false;
-            
-            detectionInterval = setInterval(processFrame, 500); // 2 FPS
-            jsDebug('Detection started ✅');
-        }
-        
-        function stopDetection() {
-            isDetecting = false;
-            
-            if (detectionInterval) {
-                clearInterval(detectionInterval);
-                detectionInterval = null;
-            }
-            
-            document.getElementById('start-detection').disabled = false;
-            document.getElementById('stop-detection').disabled = true;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            jsDebug('Detection stopped');
-        }
-        
-        function processFrame() {
-            if (!isDetecting || !video.videoWidth || !openCVReady) return;
-            
-            try {
-                ctx.drawImage(video, 0, 0, 640, 480);
-                const imageData = ctx.getImageData(0, 0, 640, 480);
-                detectSquares(imageData);
-            } catch (error) {
-                console.error('Frame processing error:', error);
-            }
-        }
-        
-        function detectSquares(imageData) {
-            try {
-                const src = cv.matFromImageData(imageData);
-                const gray = new cv.Mat();
-                const binary = new cv.Mat();
-                const contours = new cv.MatVector();
-                const hierarchy = new cv.Mat();
-                
-                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-                cv.adaptiveThreshold(gray, binary, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 11, 2);
-                cv.findContours(binary, contours, hierarchy, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
-                
-                const detections = [];
-                
-                for (let i = 0; i < contours.size() && i < 3; i++) {
-                    const contour = contours.get(i);
-                    const area = cv.contourArea(contour);
-                    
-                    if (area > 1000 && area < 30000) {
-                        const approx = new cv.Mat();
-                        const epsilon = 0.02 * cv.arcLength(contour, true);
-                        cv.approxPolyDP(contour, approx, epsilon, true);
-                        
-                        if (approx.rows === 4) {
-                            const M = cv.moments(contour);
-                            if (M.m00 !== 0) {
-                                const centerX = M.m10 / M.m00;
-                                const centerY = M.m01 / M.m00;
-                                
-                                detections.push({
-                                    id: i + 1,
-                                    center: [centerX, centerY],
-                                    area: area
-                                });
-                                
-                                // Draw detection
-                                ctx.strokeStyle = '#00ff00';
-                                ctx.lineWidth = 3;
-                                ctx.strokeRect(centerX - 30, centerY - 30, 60, 60);
-                                
-                                ctx.fillStyle = '#ff0000';
-                                ctx.beginPath();
-                                ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI);
-                                ctx.fill();
-                                
-                                ctx.fillStyle = '#ffffff';
-                                ctx.strokeStyle = '#000000';
-                                ctx.lineWidth = 2;
-                                ctx.font = 'bold 16px Arial';
-                                ctx.strokeText(`${i + 1}`, centerX + 15, centerY - 15);
-                                ctx.fillText(`${i + 1}`, centerX + 15, centerY - 15);
-                            }
-                        }
-                        approx.delete();
-                    }
-                    contour.delete();
-                }
-                
-                // Update display
-                document.getElementById('tag-count').textContent = detections.length;
-                document.getElementById('timestamp').textContent = new Date().toLocaleTimeString();
-                
-                // Send to Python
-                if (window.pyTracker && detections.length > 0) {
-                    detections.forEach(detection => {
-                        const robotData = {
-                            robot_id: detection.id,
-                            position: {
-                                x: (detection.center[0] - 320) / 320 * 1.83,
-                                y: 0.1,
-                                z: (detection.center[1] - 240) / 240 * 1.83
-                            },
-                            rotation: 0,
-                            confidence: 0.8,
-                            timestamp: Date.now() / 1000
-                        };
-                        
-                        window.pyTracker.update_robot_data(robotData);
-                    });
-                }
-                
-                // Clean up
-                src.delete();
-                gray.delete();
-                binary.delete();
-                contours.delete();
-                hierarchy.delete();
-                
-            } catch (error) {
-                console.error('Detection error:', error);
-            }
-        }
-        
-        // Python ready callback
-        window.onPythonReady = function() {
-            pythonReady = true;
-            updateStatus('python-status', 'active', 'Python: Ready ✅');
-            
-            if (video && video.videoWidth > 0 && openCVReady) {
-                document.getElementById('start-detection').disabled = false;
-            }
-            jsDebug('Python ready callback received ✅');
-        };
-        
-        // Also check for Python ready flag periodically
-        function checkPythonReady() {
-            if (window.pythonReady && !pythonReady) {
-                pythonReady = true;
-                updateStatus('python-status', 'active', 'Python: Ready ✅');
-                jsDebug('Python ready flag detected ✅');
-                
-                if (video && video.videoWidth > 0 && openCVReady) {
-                    document.getElementById('start-detection').disabled = false;
-                }
-            }
-            
-            // Check if pyTracker is available
-            if (window.pyTracker && !pythonReady) {
-                pythonReady = true;
-                updateStatus('python-status', 'active', 'Python: Ready ✅');
-                jsDebug('PyTracker object detected ✅');
-                
-                if (video && video.videoWidth > 0 && openCVReady) {
-                    document.getElementById('start-detection').disabled = false;
-                }
-            }
-            
-            // Keep checking if Python not ready yet
-            if (!pythonReady) {
-                setTimeout(checkPythonReady, 1000);
-            }
-        }
-        
-        // Start checking for Python
-        setTimeout(checkPythonReady, 2000); // Wait 2 seconds then start checking
-        
-        // Initialize
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initSystem);
-        } else {
-            initSystem();
-        }
-    </script>
+        <footer>
+            <div class="log-section">
+                <h3>System Log</h3>
+                <div id="log" class="log"></div>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>
