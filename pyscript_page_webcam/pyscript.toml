@@ -1,6 +1,9 @@
-name = "remoteFFL"
-
-packages = ["numpy"]
+packages = [
+    "opencv-python",
+    "numpy", 
+    "pillow",
+    "matplotlib"
+]
 
 [files]
 "https://chrisrogers.pyscriptapps.com/talking-on-a-channel/latest/py/channel.py" = ""
