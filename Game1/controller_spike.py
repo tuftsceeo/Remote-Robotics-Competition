@@ -1,4 +1,3 @@
-
 import time
 from hub import motion_sensor
 from BLE_CEEO import Yell, Listen
