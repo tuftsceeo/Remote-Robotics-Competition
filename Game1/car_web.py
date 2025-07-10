@@ -9,10 +9,14 @@ async def fred(message):
     topic = payload_dict['topic']
     value = payload_dict['value']
     
-    if topic == "/Controller/x":
-        controller_data["x"] = value
-    elif topic == "/Controller/y":
-        controller_data["y"] = value
+    if topic == "/Controller/data":
+        controller_data["x"] = value.get("x", 0)
+        controller_data["y"] = value.get("y", 0)
+        
+        if "s" in value:
+            controller_data["s"] = value["s"]
+    elif topic == "/Controller/Peel":
+        controller_data["s"] = value
     
     combined_data = json.dumps(controller_data)
     await myBle.send_str(combined_data)
