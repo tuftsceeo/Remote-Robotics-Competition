@@ -76,7 +76,7 @@ def peripheral(name):
             time.sleep(1)
             while p.is_connected:
                 p.send(grabData())
-                time.sleep(1)
+                time.sleep(0.01)
             print('lost connection')
     except Exception as e:
         print('Error:', e)
