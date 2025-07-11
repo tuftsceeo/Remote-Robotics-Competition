@@ -4,21 +4,23 @@ controller_data = {"x": 0, "y": 0}
 print("Starting...")
 
 async def fred(message):
-    payload = message['payload']
-    payload_dict = json.loads(payload)
-    topic = payload_dict['topic']
-    value = payload_dict['value']
-    
-    if topic == "/Controller/data":
-        controller_data["x"] = value.get("x", 0)
-        controller_data["y"] = value.get("y", 0)
+    try:
+        topic, value = myChannel.check('/Controller/data', message)
+        if topic:
+            controller_data["x"] = value.get("x", 0)
+            controller_data["y"] = value.get("y", 0)
+            
+            combined_data = json.dumps(controller_data)
+            await myBle.send_str(combined_data)
+            return  # Keep the early exit?
         
-        if "s" in value:
-            controller_data["s"] = value["s"]
-    elif topic == "/Controller/Peel":
-        controller_data["s"] = value
-    
-    combined_data = json.dumps(controller_data)
-    await myBle.send_str(combined_data)
-    
+        topic, value = myChannel.check('/Controller/Peel', message)
+        if topic:
+            controller_data["s"] = value
+            combined_data = json.dumps(controller_data)
+            await myBle.send_str(combined_data)
+            
+    except Exception as e:
+        print('Error in controller handler:', e)
+
 myChannel.callback = fred
