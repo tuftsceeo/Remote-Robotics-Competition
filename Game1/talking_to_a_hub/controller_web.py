@@ -5,7 +5,7 @@ import json
 await w.feed_rate(40)
 
 async def grab(message):
-    controller_data = { 'x': message['IMU']['roll'], 'y': message['IMU']['pitch'] }
+    controller_data = { 'x': message['IMU']['pitch'], 'y': message['IMU']['roll'] }
     if myChannel.is_connected:
         await myChannel.post('/Controller/data', controller_data)
 
