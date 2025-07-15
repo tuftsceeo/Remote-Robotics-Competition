@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebRTC Video Streaming</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.7.3/core.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="https://pyscript.net/releases/2025.7.3/core.js"></script>
+</head>
+<body>
+    <h1>WebRTC Video Streaming</h1>
+    
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='webrtc' setup></script>
+    
+    <!-- Signaling Channel -->
+    <div id="all_things_channels"></div>
+    
+    <div class="container">
+        <div class="panel">
+            <h2>Sender</h2>
+            <div id="video_sender"></div>
+            <div id="senderStatus" class="status">Status: Ready</div>
+            <button id="startStreaming">Start Streaming</button>
+            <div id="roomInfo" style="display: none;">
+                <p><strong>Room ID:</strong> <span id="roomId"></span></p>
+                <div id="streamStatus" class="status">Waiting for receiver...</div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Receiver</h2>
+            <video id="remoteVideo" autoplay width="300" height="200"></video>
+            <br>
+            <input type="text" id="roomInput" placeholder="Enter Room ID" maxlength="6">
+            <button id="joinStream">Join Stream</button>
+            <div id="receiverStatus" class="status">Status: Ready to join</div>
+        </div>
+    </div>
+</body>
+</html>
