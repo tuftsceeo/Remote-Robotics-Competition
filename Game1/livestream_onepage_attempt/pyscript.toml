@@ -1,10 +1,5 @@
-name = "Talking on Video - WebRTC"
+name = "GAME1_DEMO"
 export = true
 
 [files]
 "https://chrisrogers.pyscriptapps.com/talking-on-a-channel/latest/py/channel.py" = ""
-"./py/video.py" = ""
-
-[js_modules.main]
-"./js/video.js" = "video"
-"./js/webrtc.js" = "webrtc"
