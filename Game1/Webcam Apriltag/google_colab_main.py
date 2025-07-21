@@ -30,7 +30,7 @@ class wss_CEEO():
 class AprilTagDetector:
     def __init__(self):
         self.uri = "wss://chrisrogers.pyscriptapps.com/talking-on-a-channel/api/channels/hackathon"
-        self.selected_topic = "Car_Location1"
+        self.selected_topic = "Car_Location_1"
         self.is_running = False
         self.detector = apriltag.Detector(apriltag.DetectorOptions(families="tag36h11"))
         self.ws_client = None
@@ -199,8 +199,8 @@ def create_ui():
     global detector, topic_dropdown, start_button, stop_button, status_label
     
     topic_dropdown = widgets.Dropdown(
-        options=['Car_Location1', 'Car_Location2'],
-        value='Car_Location1',
+        options=['Car_Location_1', 'Car_Location_2'],
+        value='Car_Location_1',
         description='Topic:',
         style={'description_width': 'initial'},
         layout=widgets.Layout(width='200px')
