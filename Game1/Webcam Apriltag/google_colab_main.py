@@ -21,29 +21,27 @@ class wss_CEEO():
         try:
             ws.connect(self.url)
             ws.send(json.dumps(message))
-        except:
-            pass
+            print(f"Sent: {message}")
+        except Exception as e:
+            print(f"Error: {e}")
         finally:
             ws.close()
 
 class AprilTagDetector:
     def __init__(self):
         self.uri = "wss://chrisrogers.pyscriptapps.com/talking-on-a-channel/api/channels/hackathon"
-        self.selected_topic = "Car_Location_1"
+        self.selected_topic = "Car_Location1"
         self.is_running = False
+        self.detector = apriltag.Detector(apriltag.DetectorOptions(families="tag36h11"))
         self.ws_client = None
-        
-        # Pre-initialize detector for better performance
-        options = apriltag.DetectorOptions(families="tag36h11")
-        self.detector = apriltag.Detector(options)
-        
-        # Pre-allocate arrays for better performance
-        self.bbox_array = np.zeros([480, 640, 4], dtype=np.uint8)
-        self.last_send_time = 0
-        self.send_interval = 0.05  # Faster updates - 50ms
-        
+    
     def setup_websocket(self):
         self.ws_client = wss_CEEO(self.uri)
+    
+    def calculate_rotation(self, corners):
+        dx = corners[1][0] - corners[0][0]  
+        dy = corners[1][1] - corners[0][1]
+        return float(np.degrees(np.arctan2(dy, dx)))
     
     def send_apriltag_data(self, tag_data):
         if not tag_data or not self.ws_client:
@@ -53,10 +51,9 @@ class AprilTagDetector:
             message = {
                 'topic': f'/{self.selected_topic}/All',
                 'value': {
-                    'tag_id': tag['id'],
-                    'x': tag['x'], 
-                    'y': tag['y'], 
-                    'rotation': tag['rotation']
+                    'x': round(tag['x'], 3), 
+                    'y': round(tag['y'], 3), 
+                    'rotation': round(tag['rotation'], 3)
                 }
             }
             self.ws_client.send_message(message)
@@ -67,9 +64,9 @@ def video_stream():
         var pendingResolve = null, shutdown = false;
         
         function removeDom() {
-           if(stream) stream.getVideoTracks()[0].stop();
-           if(video) video.remove();
-           if(div) div.remove();
+           stream.getVideoTracks()[0].stop();
+           video.remove();
+           div.remove();
            video = div = stream = imgElement = captureCanvas = labelElement = null;
         }
         
@@ -77,9 +74,9 @@ def video_stream():
           if (!shutdown) window.requestAnimationFrame(onAnimationFrame);
           if (pendingResolve) {
             var result = "";
-            if (!shutdown && captureCanvas && video) {
+            if (!shutdown) {
               captureCanvas.getContext('2d').drawImage(video, 0, 0, 640, 480);
-              result = captureCanvas.toDataURL('image/jpeg', 0.7); // Lower quality for speed
+              result = captureCanvas.toDataURL('image/jpeg', 0.8)
             }
             var lp = pendingResolve;
             pendingResolve = null;
@@ -100,7 +97,7 @@ def video_stream():
           const modelOut = document.createElement('div');
           modelOut.innerHTML = "<span>Status:</span>";
           labelElement = document.createElement('span');
-          labelElement.innerText = 'Initializing...';
+          labelElement.innerText = 'No data';
           labelElement.style.fontWeight = 'bold';
           modelOut.appendChild(labelElement);
           div.appendChild(modelOut);
@@ -120,7 +117,7 @@ def video_stream():
           div.appendChild(imgElement);
           
           const instruction = document.createElement('div');
-          instruction.innerHTML = '<span style="color: red; font-weight: bold;">Click to stop</span>';
+          instruction.innerHTML = '<span style="color: red; font-weight: bold;">When finished, click here or on the video to stop this demo</span>';
           div.appendChild(instruction);
           instruction.onclick = () => { shutdown = true; };
           
@@ -144,9 +141,9 @@ def video_stream():
 
           stream = await createDom();
           
-          if (label != "" && labelElement) labelElement.innerHTML = label;
+          if (label != "") labelElement.innerHTML = label;
                 
-          if (imgData != "" && imgElement && video) {
+          if (imgData != "") {
             var videoRect = video.getClientRects()[0];
             imgElement.style.top = videoRect.top + "px";
             imgElement.style.left = videoRect.left + "px";
@@ -163,13 +160,14 @@ def video_stream():
           return {'img': result};
         }
         
-        function stopVideoStream() { shutdown = true; }
+        function stopVideoStream() {
+          shutdown = true;
+        }
         ''')
     display(js)
   
 def video_frame(label, bbox):
-    data = eval_js('stream_frame("{}", "{}")'.format(label, bbox))
-    return data
+    return eval_js('stream_frame("{}", "{}")'.format(label, bbox))
 
 def js_to_image(js_reply):
     image_bytes = b64decode(js_reply.split(',')[1])
@@ -182,22 +180,17 @@ def bbox_to_bytes(bbox_array):
     bbox_PIL.save(iobuf, format='png')
     return 'data:image/png;base64,{}'.format(str(b64encode(iobuf.getvalue()), 'utf-8'))
 
-def detect_apriltags(image, detector_instance):
+def detect_apriltags(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    results = detector_instance.detector.detect(gray)
+    results = detector.detector.detect(gray)
     
     tag_data = []
     for r in results:
-        # Simplified rotation calculation
-        dx = r.corners[1][0] - r.corners[0][0]  
-        dy = r.corners[1][1] - r.corners[0][1]
-        rotation = float(np.degrees(np.arctan2(dy, dx)))
-        
         tag_data.append({
             'id': r.tag_id,
-            'x': round(float(r.center[0]), 1),
-            'y': round(float(r.center[1]), 1),
-            'rotation': round(rotation, 1)
+            'x': float(r.center[0]),
+            'y': float(r.center[1]),
+            'rotation': detector.calculate_rotation(r.corners)
         })
     
     return results, tag_data
@@ -206,17 +199,34 @@ def create_ui():
     global detector, topic_dropdown, start_button, stop_button, status_label
     
     topic_dropdown = widgets.Dropdown(
-        options=['Car_Location_1', 'Car_Location_2'],
-        value='Car_Location_1',
-        description='Topic:'
+        options=['Car_Location1', 'Car_Location2'],
+        value='Car_Location1',
+        description='Topic:',
+        style={'description_width': 'initial'},
+        layout=widgets.Layout(width='200px')
     )
     
-    start_button = widgets.Button(description='Start', button_style='success')
-    stop_button = widgets.Button(description='Stop', button_style='danger', disabled=True)
-    status_label = widgets.HTML(value="<b>Ready</b>")
+    start_button = widgets.Button(
+        description='Start Camera',
+        button_style='success',
+        layout=widgets.Layout(width='120px')
+    )
     
-    def on_channel_change(change):
+    stop_button = widgets.Button(
+        description='Stop Camera',
+        button_style='danger',
+        layout=widgets.Layout(width='120px'),
+        disabled=True
+    )
+    
+    status_label = widgets.HTML(
+        value="<b>Status:</b> Ready to start",
+        layout=widgets.Layout(width='300px')
+    )
+    
+    def on_topic_change(change):
         detector.selected_topic = change['new']
+        status_label.value = f"<b>Status:</b> Topic set to {detector.selected_topic}"
     
     def on_start_click(b):
         start_detection()
@@ -224,36 +234,35 @@ def create_ui():
     def on_stop_click(b):
         stop_detection()
     
-    topic_dropdown.observe(on_channel_change, names='value')
+    topic_dropdown.observe(on_topic_change, names='value')
     start_button.on_click(on_start_click)
     stop_button.on_click(on_stop_click)
     
-    ui = widgets.HBox([topic_dropdown, start_button, stop_button, status_label])
-    display(ui)
+    display(widgets.HBox([
+        widgets.VBox([topic_dropdown, status_label]),
+        widgets.VBox([start_button, stop_button])
+    ]))
 
 def start_detection():
-    global detector
-    
     detector.is_running = True
     detector.setup_websocket()
     start_button.disabled = True
     stop_button.disabled = False
-    status_label.value = f"<b>Streaming to {detector.selected_topic}</b>"
+    status_label.value = f"<b>Status:</b> Detecting on {detector.selected_topic}"
     
     video_stream()
     
     try:
         detection_loop()
-    except:
+    except Exception as e:
+        print(f"Detection error: {e}")
         stop_detection()
 
 def stop_detection():
-    global detector
-    
     detector.is_running = False
     start_button.disabled = False
     stop_button.disabled = True
-    status_label.value = "<b>Stopped</b>"
+    status_label.value = "<b>Status:</b> Stopped"
     
     try:
         eval_js('stopVideoStream()')
@@ -261,52 +270,41 @@ def stop_detection():
         pass
 
 def detection_loop():
-    global detector
-    
     bbox = ''
-    frame_count = 0
+    last_send_time = time.time()
+    send_interval = 0.1
+    bbox_array = np.zeros([480,640,4], dtype=np.uint8)
     
     while detector.is_running:
         try:
-            js_reply = video_frame('Scanning...', bbox)
+            js_reply = video_frame('Detecting AprilTags...', bbox)
             if not js_reply:
                 break
 
             img = js_to_image(js_reply["img"])
-            results, tag_data = detect_apriltags(img, detector)
+            results, tag_data = detect_apriltags(img)
             
-            # Only create overlay if tags detected
+            bbox_array.fill(0)
+            bbox = ''
+
             if results:
-                # Fast array reset
-                detector.bbox_array.fill(0)
-                
-                # Minimal drawing for performance
                 for r in results:
-                    cX, cY = int(r.center[0]), int(r.center[1])
-                    cv2.circle(detector.bbox_array, (cX, cY), 4, (0, 255, 0, 255), -1)
-                    
-                    # Simple text
-                    ptA = (int(r.corners[0][0]), int(r.corners[0][1]))
-                    cv2.putText(detector.bbox_array, str(r.tag_id), (ptA[0], ptA[1] - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0, 255), 2)
+                    (cX, cY) = (int(r.center[0]), int(r.center[1]))
+                    cv2.circle(bbox_array, (cX, cY), 5, (0, 0, 255), -1)
+                    cv2.putText(bbox_array, f"ID: {r.tag_id}", (int(r.corners[0][0]), int(r.corners[0][1]) - 15),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
-                detector.bbox_array[:,:,3] = (detector.bbox_array.max(axis=2) > 0).astype(int) * 255
-                bbox = bbox_to_bytes(detector.bbox_array)
-                
-                label = f'Tags: {len(results)}'
-            else:
-                bbox = ''
-                label = 'Scanning...'
+                bbox_array[:,:,3] = (bbox_array.max(axis=2) > 0).astype(int) * 255
+                bbox = bbox_to_bytes(bbox_array)
 
-            # Throttled websocket sending
             current_time = time.time()
-            if tag_data and (current_time - detector.last_send_time) > detector.send_interval:
+            if tag_data and (current_time - last_send_time) > send_interval:
                 detector.send_apriltag_data(tag_data)
-                detector.last_send_time = current_time
+                last_send_time = current_time
 
-            frame_count += 1
-
-        except:
+        except Exception as e:
+            print(f"Detection error: {e}")
+            detector.is_running = False
             break
     
     stop_detection()
@@ -316,11 +314,11 @@ def main():
     detector = AprilTagDetector()
     create_ui()
 
-# Global variables
 detector = None
 topic_dropdown = None
 start_button = None
 stop_button = None
 status_label = None
 
-main()
+if __name__ == "__main__":
+    main()
