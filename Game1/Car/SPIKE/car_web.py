@@ -14,7 +14,7 @@ async def fred(message):
             await myBle.send_str(combined_data)
             return  # Keep the early exit?
         
-        topic, value = myChannel.check('/Controller/Peel', message)
+        topic, value = myChannel.check('/Car_Location_1/Peeled', message)
         if topic:
             controller_data["s"] = value
             combined_data = json.dumps(controller_data)
