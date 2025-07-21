@@ -35,7 +35,7 @@ def callback(data):
         print("X_normalized:", x, "Y_normalized:", y)
         
         threshold = 0.05
-        max_speed = 100
+        max_speed = 1000
         left_speed = 0
         right_speed = 0
         
