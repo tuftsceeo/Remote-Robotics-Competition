@@ -1,0 +1,26 @@
+{
+    "name": "Remote FLL demo - LEGO Science Car",
+    "export": true,
+    "files": {
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/plot.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/pyConst.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/pyTE-new.py": "pyTE.py",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/upython_board.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/mpy/bledevice.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/mpy/blewave.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/mpy/bleexample.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/mpy/SPIKEbleCEEO.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/mpy/spikeexample.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/hubs.py": "",
+        "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/py/wave.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-a-channel/latest/py/channel.py": ""
+    },
+    "js_modules": {
+        "main": {
+            "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/js/plotly.js": "Plotly",
+            "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/js/ble.js": "ble",
+            "https://chrisrogers.pyscriptapps.com/summer25-guts/latest/js/files.js": "files",
+            "https://cdn.jsdelivr.net/npm/micro-repl@0.8.2/serial.js": "micro_repl"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Mario Kart Page - FOR DEMO",
+    "version": "1.0.0",
+    "export": true,
+    "fetch": [
+        {
+            "files": [
+                "main.py"
+            ]
+        },
+        {
+            "from": "https://conortemme.pyscriptapps.com/channel-lib/latest/py/channel.py",
+            "to_file": "channel.py"
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+{
+    "name": "Talking on Anyone Copy",
+    "files": {
+        "https://chrisrogers.pyscriptapps.com/talking-on-spike/latest/py/RS232.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-a-channel/latest/py/channel.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-ble/latest/py/ble.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-plotly/latest/py/plotly.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-file-system/latest/py/files.py": "files.py",
+        "https://chrisrogers.pyscriptapps.com/talking-on-audio/latest/py/audio.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-video/latest/py/video.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-spike/latest/mpy/bleexample.py": "",
+        "https://chrisrogers.pyscriptapps.com/talking-on-spike/latest/mpy/SPIKEbleCEEO.py": "",
+        "./myCode.py": ""
+    },
+    "js_modules": {
+        "main": {
+            "https://cdn.jsdelivr.net/npm/micro-repl@0.8.2/serial.js": "micro_repl",
+            "https://chrisrogers.pyscriptapps.com/talking-on-ble/latest/js/ble_js.js": "ble_js",
+            "https://chrisrogers.pyscriptapps.com/talking-on-plotly/latest/js/plotly.js": "Plotly",
+            "https://chrisrogers.pyscriptapps.com/talking-on-file-system/latest/js/files.js": "Files",
+            "https://chrisrogers.pyscriptapps.com/talking-on-audio/latest/js/audio.js": "audio",
+            "https://chrisrogers.pyscriptapps.com/talking-on-video/latest/js/video.js": "video"
+        }
+    }
+}

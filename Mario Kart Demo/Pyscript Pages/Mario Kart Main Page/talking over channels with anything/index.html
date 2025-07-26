@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MicroPython playground</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.5.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2025.5.1/core.js"></script>
+
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+</head>
+<body>
+    
+    <h1>MicroPython playground</h1>
+    <link rel="stylesheet" href="./styles.css">
+    <button id='loadopenmv'>Load OpenMV Code</button>
+    <button id='loadrp2040'>Load RP2040 Code</button>
+    <button id='loadspike'>Load SPIKE Code</button>
+    <button id='loadesp'>Load ESP32 Code</button>
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='su25' setup></script>
+    
+    <div id='all_things_rs232'></div>
+    <div id='all_things_ble'></div>
+    <div id='all_things_channels'></div>
+    <div id='all_things_audio'></div>
+    <div id='all_things_video'></div>
+    <div id='all_things_files'></div>
+
+    <button id='loaddefault'>Load Default Code</button>
+    <button id='loadte'>Load Tech Elements Code</button><br><br>
+    <script id='PC_code' type="mpy-editor" env='su25'>
+      
+    </script>
+    <div id='all_things_plotly'></div>
+    <div id='all_things_rs232_2'></div>
+</body>
+</html>

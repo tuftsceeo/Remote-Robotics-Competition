@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+</head>
+<body>
+    <h1>Milan's Examples</h1>
+    Here are some of our test codes - you will have to copy these codes back on <a href='./index.html'>the main page</a>.
+    <script type="mpy-editor" config="./pyscript.toml" env='me35' setup></script>
+    <h3>Driving a car</h3>
+    <script type="mpy-editor" env='me35'>
+        # Driving with a joystick:
+        # Double motor is w
+        # Joystick is x
+        
+        import asyncio
+        await w.motor_speed(3,50) #set motor speed to 50
+        
+        for i in range(100):
+        	await w.motor_speed(1,int(x.value[0]/40)) # 1 = left motor, x.value[0] = left joystick value 
+        	await w.motor_speed(2,int(x.value[1]/40)) # 2 = right motor, x.value[1] = right joystick value 
+        	await w.motor_run(1,1) # (1 -left motor, 1 - run CCW)
+        	await w.motor_run(2,0) # (2 - right motor, 0 - run CW)
+        	await asyncio.sleep(0.1)
+        await w.motor_stop(None)
+    </script>
+    <h3>Walking the dog</h3>
+    <script type="mpy-editor" env='me35'>
+        # Driving with a color:
+        # Double motor is w
+        # Color sensor is x
+        # Bricks of different colors: RED, BLUE, YELLOW, ORANGE, BLUE
+        
+        import asyncio
+        
+        LUT = {1:"MAGENTA", 2:"PURPLE", 3: "BLUE", 4:"AZURE", 5:"TURQUOISE",  6:"GREEN", 7: "YELLOW", 8:"ORANGE", 9:"RED", 10: "WHITE", 255:None}
+        
+        for i in range(100):
+            if (LUT[x.reply["color"]] == "RED"):
+                    #stop motor
+                await w.motor_stop(None)
+            elif (LUT[x.reply["color"]] == "GREEN"):
+                await w.motor_speed(3, 30)
+                #move forward
+                await w.motor_run(1,1)
+                await w.motor_run(2,0)
+            elif (LUT[x.reply["color"]] == "BLUE"):
+                await w.motor_speed(3, 30)
+                #move backwards
+                await w.motor_run(2,1)
+                await w.motor_run(1,0)
+            elif (LUT[x.reply["color"]] == "YELLOW"):
+                await w.motor_speed(3, 10)
+                #move forward - but slower
+                await w.motor_run(1,1)
+                await w.motor_run(2,0)
+            elif (LUT[x.reply["color"]] == "ORANGE"):
+                await w.motor_speed(3, 10)
+                #move backward - but slower
+                await w.motor_run(1,1)
+                await w.motor_run(2,0)
+            else:
+                pass
+            await asyncio.sleep(0.1)  
+        
+        await w.motor_stop(None)  
+    </script>
+    <h3>Line follower</h3>
+    <script type="mpy-editor" env='me35'>
+        # Following a line:
+        # Double motor is w
+        # Color sensor is x
+        
+        import asyncio
+        await w.motor_stop(None)
+        high_speed = 15
+        slow_speed = 5
+        
+        async def move_right():
+            await w.motor_speed(1, high_speed)
+            await w.motor_speed(2, slow_speed)
+            await w.motor_run(3,0)
+        
+        async def move_left():
+            await w.motor_speed(2, high_speed)
+            await w.motor_speed(1, slow_speed)
+            await w.motor_run(3,1)
+            
+        for i in range(200):
+            if x.value > 90: #detect white move left 
+                await move_left()
+            else:
+                await move_right()
+        
+            await asyncio.sleep(0.05)
+        await w.motor_stop(None)  
+    </script>
+    <h3>Crazy robot</h3>
+    <script type="mpy-editor" env='me35'>
+        # Driving crazily:
+        # Double motor is w
+        # Color sensor is x
+        # Single motor on y
+        
+        import asyncio
+        await y.motor_speed(1, 20)
+        await y.motor_run(1,0)
+        
+        async def move_right():
+            await w.motor_speed(1, high_speed)
+            await w.motor_speed(2, slow_speed)
+            await w.motor_run(3,0)
+        
+        async def move_left():
+            await w.motor_speed(2, high_speed)
+            await w.motor_speed(1, slow_speed)
+            await w.motor_run(3,1)
+            
+        for i in range(200):
+            if x.value > 50: #detect white move left 
+                await move_left()
+            else:
+                await move_right()
+            await asyncio.sleep(0.05)
+        
+        await w.motor_stop(None) 
+        await y.motor_stop(None) 
+    </script>
+    <h3>Steer a peer</h3>
+    <script type="mpy-editor" env='me35'>
+        # driving with a single motor:
+        # Double motor is w
+        # Single motor on x
+        
+        import asyncio
+        
+        high_speed = 30
+        slow_speed = 30
+        
+        async def move_right():
+            await w.motor_speed(1, high_speed)
+            await w.motor_speed(2, slow_speed)
+            await w.motor_run(3,0)
+        
+        async def move_left():
+            await w.motor_speed(2, high_speed)
+            await w.motor_speed(1, slow_speed)
+            await w.motor_run(3,1)
+        
+        async def move_forward():
+            await w.motor_speed(2, high_speed)
+            await w.motor_speed(1, high_speed)
+            await w.motor_run(1,0)
+            await w.motor_run(2,1)
+            
+        for i in range(2000):
+            data = x.reply["absolutePos1"]
+            if (data < -30):
+                await move_right()
+            elif (data > 30):
+                await move_left()
+            else:
+                await move_forward()
+        
+            await asyncio.sleep(0.01)
+    </script>
+</body>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <h1 style="text-align: center;">Remote FLL demo - LEGO Science Car</h1>
+    <h3>Connections</h3>
+    This is a simple test  - Connect and then CLICK Get Data to get data going.
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='me35' terminal setup></script>
+    <table>
+      <tr>
+        <td>w = </td>
+        <td id = 'name2'>Lego Science Tech Element </td>
+        <td><button id = "sync2">Connect</button></td>
+        <td><button id = "beep2">Beep</button></td>
+        <td><button id = "stop2">Stop</button></td>
+        <td><input id = "rate2" type="number" style="border: none; width: 30px;" min="0" max="20" value=10> Hz</td>
+        <td><button id = "data2">Get Data</button></td>
+        <td><select id="dd2"></select></td>
+        <td style="width: 100px; text-align: center"><label id = "value2">0</label></td>
+      </tr>
+    </table>
+    <div id = 'firmware'></div>
+    <div id='all_things_channels'></div>
+    <h3>Graph</h3>
+    
+    Plotting: <select id="dropdown">
+      <option value="2">w</option>
+    </select>
+    <div id="plot"></div>
+    
+    <h3>Coding Environment</h3>
+        <input type="file" id="fileRead">
+    <button id="local">save locally</button> <br><br>
+    <script id='PC_code' type="mpy-editor" env='me35'>
+        import asyncio
+        import json
+        
+        flag = False
+        
+        async def myCallback(message):
+            value = json.loads(message.decode())
+        
+        async def fred(message):
+            global flag
+            topic, value = myChannel.check('/Controller_1/data', message) #change to /Controller_2/data if you are car #2
+            topic2, value2 = myChannel.check('/Car_Location_1/Peeled', message) #change to /Car_Location_2/Peeled if you are car #2
+            if (topic2):
+                try:
+                    spin = (value2 == "True")
+                    if (spin == True):
+                        await w.motor_speed(1, 100)
+                        await w.motor_speed(2, 100)
+                        flag = True
+                    else:
+                        flag = False
+                        await w.motor_speed(3, 0)
+                        
+                            
+                except Exception as e:
+                    print('ERROR: ', e)
+            
+            if (topic and not flag):
+                # x and y SWITCHED bc my controller is built sideways
+                x_raw = float(value.get('y', 0))
+                y_raw = float(value.get('x', 0))
+                x = x_raw / 1000.0
+                y = y_raw / 1000.0
+        
+        
+                
+        
+        
+                # Clamp values to [-1, 1] in case of slight overshoot
+                x = max(-1.0, min(1.0, x))
+                y = max(-1.0, min(1.0, y))
+                
+                threshold = 0.05
+                max_speed = 100
+                left_speed = 0
+                right_speed = 0
+                
+                if abs(x) < threshold:
+                    x = 0
+                if abs(y) < threshold:
+                    y = 0
+                    
+                base_speed = y * max_speed
+                turn_adjustment = x * max_speed
+                
+                # Calculate individual wheel speeds
+                # Positive y = forward, negative y = backward
+                # Positive x = turn right, negative x = turn left
+                left_speed = base_speed + turn_adjustment
+                right_speed = base_speed - turn_adjustment
+                
+                # Clip speeds to [-100, 100]
+                left_speed = max(-max_speed, min(max_speed, left_speed))
+                right_speed = max(-max_speed, min(max_speed, right_speed))
+        
+                await w.motor_speed(1, int(left_speed))
+                await w.motor_speed(2, int(right_speed))
+                await w.motor_run(1, 0)
+                await w.motor_run(2, 0)
+        
+        await w.motor_run(3, 0)
+        myChannel.callback = fred
+    </script>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Image Projector</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="preload" href="images/banannaPeel.png" as="image">
+  <script type="module" src="https://pyscript.net/releases/2025.5.1/core.js"></script>
+  <py-config src="./pyscript.toml"></py-config>
+  <script>
+    function positionHitbox(peelId) {
+      const peel = document.getElementById(peelId);
+      const hitbox_div = document.getElementById(`peel-hitbox-${peelId}`);
+      if (peel && hitbox_div) {
+        const peel_rect = peel.getBoundingClientRect();
+        const peel_hitbox_width = 20;
+        const peel_hitbox_height = 20;
+        const peel_hitbox_left = peel_rect.left + (peel_rect.width - peel_hitbox_width) / 2;
+        const peel_hitbox_top = peel_rect.top + (peel_rect.height - peel_hitbox_height) / 2;
+
+        hitbox_div.style.width = `${peel_hitbox_width}px`;
+        hitbox_div.style.height = `${peel_hitbox_height}px`;
+        hitbox_div.style.left = `${peel_hitbox_left}px`;
+        hitbox_div.style.top = `${peel_hitbox_top}px`;
+      }
+    }
+  </script>
+</head>
+<body>
+  <div id="banana-bar-1" class="banana-bar">
+    <h3>Car 1</h3>
+    <img src="images/banannaPeelGreyedOut.png" id="banana-1-1" class="banana-indicator" alt="Banana 1">
+    <img src="images/banannaPeelGreyedOut.png" id="banana-1-2" class="banana-indicator" alt="Banana 2">
+    <img src="images/banannaPeelGreyedOut.png" id="banana-1-3" class="banana-indicator" alt="Banana 3">
+  </div>
+  <div id="banana-bar-2" class="banana-bar">
+    <h3>Car 2</h3>
+    <img src="images/banannaPeelGreyedOut.png" id="banana-2-1" class="banana-indicator" alt="Banana 1">
+    <img src="images/banannaPeelGreyedOut.png" id="banana-2-2" class="banana-indicator" alt="Banana 2">
+    <img src="images/banannaPeelGreyedOut.png" id="banana-2-3" class="banana-indicator" alt="Banana 3">
+  </div>
+  <img src="images/racetrack.png" class="background-image" alt="Racetrack">
+  <div id='all_things_channels'></div>
+  <div id="peels-container"></div>
+  <div id="hitbox-container"></div>
+  <img src="images/car.png" id="car-1" class="car-image" alt="Car 1">
+  <div id="car-hitbox-visual-1" class="car-hitbox-visual"></div>
+  <img src="images/car.png" id="car-2" class="car-image" alt="Car 2">
+  <div id="car-hitbox-visual-2" class="car-hitbox-visual"></div>
+  <div id="status-box-1" class="status-box">
+    <h3>Car 1</h3>
+    <p>X: <span id="car-1-x">N/A</span></p>
+    <p>Y: <span id="car-1-y">N/A</span></p>
+    <p>Bearing: <span id="car-1-yaw">N/A</span></p>
+    <label for="orientation-slider-1">Orientation:</label>
+    <input type="range" min="-180" max="180" value="0" id="orientation-slider-1" class="orientation-slider">
+    <br>
+    <label for="show-car-toggle-1">Show Car:</label>
+    <input type="checkbox" id="show-car-toggle-1" class="show-car-toggle" checked>
+  </div>
+  <div id="status-box-2" class="status-box">
+    <h3>Car 2</h3>
+    <p>X: <span id="car-2-x">N/A</span></p>
+    <p>Y: <span id="car-2-y">N/A</span></p>
+    <p>Bearing: <span id="car-2-yaw">N/A</span></p>
+    <label for="orientation-slider-2">Orientation:</label>
+    <input type="range" min="-180" max="180" value="0" id="orientation-slider-2" class="orientation-slider">
+    <br>
+    <label for="show-car-toggle-2">Show Car:</label>
+    <input type="checkbox" id="show-car-toggle-2" class="show-car-toggle" checked>
+  </div>
+
+  <div id="bottom-left-debug-panel">
+    <p>Connection: <span id="connection-status">No</span></p>
+    <button id="connect-button">Connect to Channels</button>
+    <div id="message-filter-container">
+      <label for="topic-filter">Filter by Topic:</label>
+      <select id="topic-filter">
+        <option value="All">All</option>
+        <option value="/Car_Location_1/All">/Car_Location_1/All</option>
+        <option value="/Car_Location_2/All">/Car_Location_2/All</option>
+        <option value="/test_topic">/test_topic</option>
+      </select>
+    </div>
+    <div id="latest-channel-message"></div>
+  </div>
+
+  <div id="bottom-right-debug-panel">
+    <label for="show-hitboxes-toggle">Show Hitboxes:</label>
+    <input type="checkbox" id="show-hitboxes-toggle">
+    <br>
+    <label for="car-select">Select Car:</label>
+    <select id="car-select">
+      <option value="1">Car 1</option>
+      <option value="2">Car 2</option>
+    </select>
+    <br>
+    <label for="master-projector-toggle">Master Projector:</label>
+    <input type="checkbox" id="master-projector-toggle" checked>
+  </div>
+
+  <py-script src="./main.py"></py-script>
+  <py-terminal></py-terminal>
+</body>
+</html>
