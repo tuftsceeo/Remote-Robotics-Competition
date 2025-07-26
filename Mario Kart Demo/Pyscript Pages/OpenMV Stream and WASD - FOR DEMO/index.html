@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Robot Controller with OpenMV Stream</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.7.3/core.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="https://pyscript.net/releases/2025.7.3/core.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Robot Controller & OpenMV Camera</h1>
+            <p>Control the robot with WASD keys and view live camera feed!</p>
+        </header>
+        
+        <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='controller' setup></script>
+        
+        <!-- Channel Connection -->
+        <div id="all_things_channels"></div>
+        
+        <main class="controller-panel">
+            <div class="controls-section">
+                <h2>Robot Controls</h2>
+                
+                <!-- Controller Selection Dropdown -->
+                <div class="controller-selection">
+                    <label for="controller-select"><strong>Select Controller:</strong></label>
+                    <select id="controller-select" class="controller-dropdown">
+                        <option value="Controller_1" selected>Controller 1</option>
+                        <option value="Controller_2">Controller 2</option>
+                    </select>
+                </div>
+                
+                <div class="arrow-keys">
+                    <div class="arrow-row">
+                        <div class="arrow-key" id="key-w" data-key="w">W</div>
+                    </div>
+                    <div class="arrow-row">
+                        <div class="arrow-key" id="key-a" data-key="a">A</div>
+                        <div class="arrow-key" id="key-s" data-key="s">S</div>
+                        <div class="arrow-key" id="key-d" data-key="d">D</div>
+                    </div>
+                </div>
+                
+                <div class="status-display">
+                    <h3>Current Position</h3>
+                    <div class="coordinate-display">
+                        <div class="coord-item">
+                            <strong>X:</strong> <span id="x-value">0</span>
+                        </div>
+                        <div class="coord-item">
+                            <strong>Y:</strong> <span id="y-value">0</span>
+                        </div>
+                    </div>
+                    <div class="controller-status">
+                        <strong>Active Controller:</strong> <span id="active-controller">Controller_1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="camera-section">
+                <h2>OpenMV Camera Stream</h2>
+                <div id="imageContainer" class="image-container">
+                    <img id="displayImage" class="camera-image" style="display: none;">
+                    <div id="noImageMessage" class="no-image-message">
+                        Waiting for camera feed...
+                    </div>
+                </div>
+                <div id="cameraStatus" class="status-display">
+                    Status: Listening for OpenMV camera feed
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p><small>WASD controls robot movement • OpenMV camera streams automatically</small></p>
+        </footer>
+    </div>
+</body>
+</html>
