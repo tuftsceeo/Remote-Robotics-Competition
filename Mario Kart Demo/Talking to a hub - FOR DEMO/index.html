@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Talking to a hub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.7.3/core.css">
+    <script type="module" src="https://pyscript.net/releases/2025.7.3/core.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <h1>Simple SPIKE Element Control</h1>
+Welcome to the simple SPIKE Prime page - turn your SPIKE Prime on and then
+    push the BLE button (upper right) and click on connect below.  That should
+    start the communication.  The SPIKE Prime will update every second and 
+    can only support one of any sensor at this point.
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='me35' setup></script>
+
+    <div id='all_things_hubs'></div>
+    <div id='all_things_channels'></div>
+    <div class = "hidden-block">
+        <div id = 'firmware'></div>
+        <h3>Graph</h3>
+        Select variable to plot: <select id="dropdown">
+          <option value="1">w</option>
+          <option value="2">x</option>
+        </select>
+        <div id="plot"></div>
+    </div>
+
+        <h3>Coding Environment</h3>
+            <input type="file" id="fileRead">
+        <button id="local">save locally</button> <br><br>
+        <script id='PC_code' type="mpy-editor" env='me35'>
+            import asyncio
+            import json
+            
+            await w.feed_rate(100)
+            
+            async def grab(message):
+                value1 = message.get('IMU', {}).get('pitch')
+                value2 = message.get('IMU', {}).get('yaw')
+                controller_data = {'x': value2, 'y': value1}
+                if myChannel.is_connected:
+                    await myChannel.post('/Controller_2/data', controller_data)
+            
+            w.final_callback = grab
+        </script>
+        <h3>Code Hints</h3>
+        <table>
+          <tr>
+            <td>w.reply</td><td> returns the json package</td> </tr><tr>
+            <td>w.value</td><td> returns the last value of the sensor (tuple if more than one option)</td></tr><tr>
+            <td>await w.motor_speed(1, 50)</td><td> sets the speed of the motor (-100 to 100) on port 1 (left), 2 (right), or 3(both)</td></tr><tr>
+            <td>await w.left_angle(angle = 20)  </td><td> will run the left (or single) motor at speed setting</td></tr><tr>
+           <td>await w.right_angle(angle = 20)  </td><td> will run the right motor 20 deg each time (shortest route)</td></tr><tr>
+           <td>await w.motor_run(1,0)  </td><td> runs left motor (2 is right and 3 is both) clockwise (1 = CCW) (note - something wierd, speed ctrl not working)</td></tr><tr>
+           <td>await w.right_abs_pos(100)  </td><td> moves the motor to an absolute position</td></tr><tr>
+           <td>await w.motor_stop(None)  </td><td> stops the motor </td></tr><tr>
+           <td> channel.reply </td><td> returns the json package </td></tr><tr>
+           <td> channel.value </td><td> returns the last value </td></tr><tr>
+           <td>await channel.send(15)  </td><td> sends the value 15 </td></tr><tr>
+           <td>await channel.post('fred',x.value)  </td><td> sends the value of the sensor on x </td></tr><tr>
+         </tr>
+        </table>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<!-- COPIED FROM TALKING ON ANYONE 7/21/25 -->
+
+<html>
+<head>
+    <title>MicroPython playground</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.5.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2025.5.1/core.js"></script>
+
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+</head>
+<body>
+    
+    <h1>MicroPython playground</h1>
+    <link rel="stylesheet" href="./styles.css">
+    <button id='loadSPIKE'>LOAD CODE</button>
+    <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='su25' setup></script>
+    
+    <div id='all_things_rs232'></div>
+    <div id='all_things_ble'></div>
+    <div id='all_things_channels'></div>
+
+    <br><br>
+    <button id='loadWEB'>LOAD CODE</button>
+    <br><br>
+    <script id='PC_code' type="mpy-editor" env='su25'></script>
+    <br><br>
+</body>
+</html>

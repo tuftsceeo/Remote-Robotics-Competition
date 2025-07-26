@@ -1,0 +1,95 @@
+body {
+    font-family: Arial, sans-serif;
+}
+.input {
+    color:#0000FF;
+    font-size: 18px;
+    border: none;
+    background-color:lightlightgray;
+}
+
+.py-editor-box, .mpy-editor-box {
+    max-height: 300px;
+    width: 95%;
+    margin-left: 10px;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 10px 10px 10px 10px;
+    background-color: white;
+}
+
+.repl-box {
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 0 10px 10px 10px;
+    background-color: white;
+}
+
+.parent{
+    display: grid;
+    height: 55vh;
+    width: 95%;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    margin-left: 10px;
+    padding: 10px;
+    grid-template-columns: 50% 5px 50%; /* Left column, resizer, right column */
+}
+
+.child {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    margin: 2px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.btndiv {
+    margin: 10px;
+    display: inline-block;
+    grid-row: 1;
+    height: auto;
+}
+
+.resizer {
+  background-color: whitesmoke;
+  border: 1px solid #ccc;
+  cursor: col-resize;  /* Cursor changes when hovering over the resizer */
+  width: 5px;         /* Resizer width */
+}
+
+.info {
+    width: 95%;
+    margin: 10px;
+}
+
+.hidden-block{
+    display: none
+}
+
+.table-bordered, .table-bordered tr, .table-bordered td{
+    border: 3px solid black;
+    text-align: center;
+    border-collapse: collapse;
+    padding: 15px
+} 
+
+.table-default, .table-default td, .table-default tr{
+    text-align: center;
+    border: 0px;
+    border-collapse: collapse;
+    padding: 5px
+}
+
+.magenta-color-block {
+    background-color: #cc16ae;   
+    color: #cc16ae;               
+    padding: 10px 20px;          
+    display: inline-block;  
+    border-radius: 8px;         
+    font-size: 1.2em;            
+}
