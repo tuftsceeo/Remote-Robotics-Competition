@@ -2,9 +2,12 @@
 
 ## Authors:
 Tufts Center for Engineering Education and Outreach
-\nProf. Chris Rogers FET Lab
-\n[William Goldman](https://www.goldmanwilliam.com/), [Conor Temme](https://www.linkedin.com/in/conor-temme-2b024a321/)
-\nSummer 2025
+
+Prof. Chris Rogers FET Lab
+
+[William Goldman](https://www.goldmanwilliam.com/), [Conor Temme](https://www.linkedin.com/in/conor-temme-2b024a321/)
+
+Summer 2025
 
 ## What's in this repository
 Pyscript.com code for three game demos:
