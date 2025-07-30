@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Painting Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.7.3/core.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="https://pyscript.net/releases/2025.7.3/core.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Painting Demo</h1>
+            <p>Drive cars to corners to change colors! First team to cover 50% of the canvas wins!</p>
+        </header>
+        
+        <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='competitive_trail_painter' setup></script>
+        
+        <!-- Channel Connection -->
+        <div id="all_things_channels"></div>
+        
+        <!-- Game Canvas -->
+        <div class="canvas-container">
+            <canvas id="trailCanvas">
+                Your browser does not support the HTML5 canvas element.
+            </canvas>
+        </div>
+        
+        <!-- Game Statistics -->
+        <div class="game-stats">
+            <div class="team-stats team1">
+                <h3>Team 1 (Red/Blue)</h3>
+                <div id="team1Percentage">0.0%</div>
+            </div>
+            
+            <!-- Combined Progress Bar -->
+            <div class="combined-progress">
+                <div class="percentage-bar-combined">
+                    <div class="percentage-fill team1-fill" id="team1Progress" style="width: 0%"></div>
+                    <div class="percentage-fill team2-fill" id="team2Progress" style="width: 0%"></div>
+                    <div class="progress-center-line"></div>
+                </div>
+                <div class="progress-labels">
+                    <span class="team1-label">Team 1</span>
+                    <span class="team2-label">Team 2</span>
+                </div>
+            </div>
+            
+            <div class="team-stats team2">
+                <h3>Team 2 (Green/Orange)</h3>
+                <div id="team2Percentage">0.0%</div>
+            </div>
+        </div>
+
+        <!-- Win Banner -->
+        <div id="winBanner" class="win-banner">
+            <div id="winMessage"></div>
+            <button onclick="resetGame()" style="margin-top: 20px; font-size: 0.5em;">New Game</button>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <button id="clearButton">Reset Game</button>
+            </div>
+            
+            <div class="control-group team-legend">
+                <h4>Team Color Assignments</h4>
+                <div class="team-colors">
+                    <div class="team-section team1-section">
+                        <strong>Team 1 (Car_Location_1)</strong>
+                        <div class="corner-item">
+                            <div class="color-indicator" style="background-color: #CC0000;"></div>
+                            <span>Red - Top Left Corner</span>
+                        </div>
+                        <div class="corner-item">
+                            <div class="color-indicator" style="background-color: #0000CC;"></div>
+                            <span>Blue - Bottom Left Corner</span>
+                        </div>
+                    </div>
+                    
+                    <div class="team-section team2-section">
+                        <strong>Team 2 (Car_Location_2)</strong>
+                        <div class="corner-item">
+                            <div class="color-indicator" style="background-color: #00AA00;"></div>
+                            <span>Green - Top Right Corner</span>
+                        </div>
+                        <div class="corner-item">
+                            <div class="color-indicator" style="background-color: #CC8800;"></div>
+                            <span>Orange - Bottom Right Corner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <div id="statusDisplay" class="status-display">
+                    <strong>Car Position:</strong> X: 0.0, Y: 0.0<br>
+                    <strong>Canvas Position:</strong> X: 400, Y: 300<br>
+                    <strong>Team 1:</strong> 0.0% | <strong>Team 2:</strong> 0.0%<br>
+                    <strong>Brush Size:</strong> 60px
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p><strong>Game Rules:</strong> Drive cars to corners to change paint colors! Hit gray boosters for paint splatter!</p>
+            <p><small>Team 1 uses Red/Blue colors | Team 2 uses Green/Orange colors</small></p>
+        </footer>
+    </div>
+</body>
+</html>

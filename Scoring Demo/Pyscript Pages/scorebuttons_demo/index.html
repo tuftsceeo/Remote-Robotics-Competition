@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Car Location Interactive Game - Full Screen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://pyscript.net/releases/2025.7.3/core.css">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="https://pyscript.net/releases/2025.7.3/core.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- PyScript Setup -->
+        <script type="mpy-editor" src="./main.py" config="./pyscript.toml" env='game' setup></script>
+        
+        <!-- Full-screen Canvas (Background) -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas">
+                Your browser does not support the HTML5 canvas element.
+            </canvas>
+        </div>
+        
+        <!-- Header overlay (toggles with controls) -->
+        <div id="overlay-header" class="overlay-header">
+            <h1>Car Location Interactive Game</h1>
+            <p>Two controllers compete to score for their alliance! Press 'T' to toggle controls.</p>
+        </div>
+        
+        <!-- Controls Panel Overlay (toggles with header) -->
+        <div id="overlay-controls" class="overlay-controls">
+            <!-- Channel Connection -->
+            <div id="all_things_channels">
+                <h3>Channel Connection</h3>
+                <p>Loading channel interface...</p>
+            </div>
+            
+            <!-- Controls -->
+            <div class="controls">
+                <div class="control-group">
+                    <button id="resetButton">Reset Game</button>
+                </div>
+                
+                <div class="control-group">
+                    <div id="statusDisplay" class="status-display">
+                        <strong>Controller 1:</strong> X: 0.0, Y: 0.0<br>
+                        <strong>Pointer 1:</strong> X: 200, Y: 300<br>
+                        <strong>Controller 2:</strong> X: 0.0, Y: 0.0<br>
+                        <strong>Pointer 2:</strong> X: 600, Y: 300<br>
+                        <strong>Alliance 1:</strong> 0 points<br>
+                        <strong>Alliance 2:</strong> 0 points
+                    </div>
+                </div>
+                
+                <div class="control-group game-info">
+                    <h4>How to Play:</h4>
+                    <p>Two controllers compete to score for their alliance:</p>
+                    <div class="target-info">
+                        <div class="target-item">
+                            <div class="target-indicator red"></div>
+                            <span>Controller 1 scores on red targets (Alliance 1)</span>
+                        </div>
+                        <div class="target-item">
+                            <div class="target-indicator blue"></div>
+                            <span>Controller 2 scores on blue targets (Alliance 2)</span>
+                        </div>
+                    </div>
+                    <p><small>Smaller targets are worth more points!</small></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer overlay with small toggle button -->
+        <div class="overlay-footer">
+            <footer>
+                <p>Two controllers compete: Controller 1 → Alliance 1, Controller 2 → Alliance 2 • Press 'T' to toggle controls</p>
+                <button id="toggleControls" class="small-toggle-button">Hide Controls</button>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
