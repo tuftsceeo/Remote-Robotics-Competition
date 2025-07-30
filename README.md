@@ -2,15 +2,15 @@
 
 ## Authors:
 Tufts Center for Engineering Education and Outreach
-Prof. Chris Rogers FET Lab
-[William Goldman](https://www.goldmanwilliam.com/), [Conor Temme](https://www.linkedin.com/in/conor-temme-2b024a321/)
-Summer 2025
+\nProf. Chris Rogers FET Lab
+\n[William Goldman](https://www.goldmanwilliam.com/), [Conor Temme](https://www.linkedin.com/in/conor-temme-2b024a321/)
+\nSummer 2025
 
 ## What's in this repository
 Pyscript.com code for three game demos:
 - Mario Kart
 - Painting Demo
-- Team scoring
+- Team Scoring Demo
 
 ## Documentation
 For a complete overview of the project, visit this [Notion page](https://fetlab.notion.site/Remote-FLL-Competition-237df3d0e05280e09622c856f06f14f7)
