@@ -7,7 +7,8 @@ Prof. Chris Rogers FET Lab
 
 [William Goldman](https://www.goldmanwilliam.com/), [Conor Temme](https://www.linkedin.com/in/conor-temme-2b024a321/)
 
-Summer 2025
+## Date:
+Summer 2025 (June-July)
 
 ## What's in this repository
 Pyscript.com code for three game demos:
@@ -21,3 +22,4 @@ For a complete overview of the project, visit this [Notion page](https://fetlab.
 ## Other notes
 - Some of the code in 'General Tools' is still specific to the Mario Kart demo (i.e. the LEGO SPIKE car listening to /Peel) but the general motor control can be used across demos
 
+<img width="768" height="960" alt="Demo Field Setup (Marked up)" src="https://github.com/user-attachments/assets/a852e497-4ce9-4f83-8204-5747bae7b5e6" />
