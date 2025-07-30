@@ -9,6 +9,12 @@ Prof. Chris Rogers FET Lab \
 Summer 2025 (June-July)
 
 ## What's in this repository
+
+General Tools:
+ - Apriltag detection
+ - Camera streaming
+ - Hardware connection
+ - Keyboard control
 Pyscript.com code for three game demos:
 - Mario Kart
 - Painting Demo
