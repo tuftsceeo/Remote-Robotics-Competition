@@ -19,55 +19,232 @@ class wss_CEEO():
         self.url = url
         self.ws = None
         self.connected = False
+        self.last_activity = time.time()
+        self.keepalive_interval = 30  # Send keepalive every 30 seconds
+        self.connection_timeout = 60  # Consider connection dead after 60 seconds of no activity
+        self.reconnect_attempts = 0
+        self.max_reconnect_attempts = 5
+        self.reconnect_delay = 5  # Initial delay between reconnection attempts
+        
+        # Keepalive thread management
+        self.keepalive_thread = None
+        self.keepalive_running = False
+        self.connection_event = Event()
+        
+        # Connect and start keepalive
         self.connect()
+        self.start_keepalive()
  
     def connect(self):
-        """Establish persistent WebSocket connection"""
+        """Establish persistent WebSocket connection with retry logic"""
         try:
+            if self.ws:
+                try:
+                    self.ws.close()
+                except:
+                    pass
+                    
+            print(f"Attempting to connect to WebSocket... (attempt {self.reconnect_attempts + 1})")
             self.ws = websocket.WebSocket(sslopt={"cert_reqs": ssl.CERT_NONE})
+            self.ws.settimeout(10)  # Set timeout for connection
             self.ws.connect(self.url)
+            
             self.connected = True
-            print("WebSocket connected")
+            self.last_activity = time.time()
+            self.reconnect_attempts = 0
+            self.connection_event.set()
+            print("✓ WebSocket connected successfully")
+            
         except Exception as e:
-            print(f"WebSocket connection error: {e}")
+            print(f"✗ WebSocket connection error: {e}")
             self.connected = False
- 
-    def send_message(self, message):
-        """Send a single message using persistent connection"""
-        if not self.connected:
-            self.connect()
- 
+            self.connection_event.clear()
+            self.reconnect_attempts += 1
+            
+            if self.reconnect_attempts < self.max_reconnect_attempts:
+                delay = min(self.reconnect_delay * self.reconnect_attempts, 60)  # Exponential backoff, max 60s
+                print(f"Will retry connection in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                print("Max reconnection attempts reached. Will continue trying with longer delays...")
+                time.sleep(60)  # Wait longer before retrying
+                self.reconnect_attempts = 0  # Reset counter for continued attempts
+
+    def start_keepalive(self):
+        """Start the keepalive thread"""
+        if not self.keepalive_running:
+            self.keepalive_running = True
+            self.keepalive_thread = Thread(target=self._keepalive_worker, daemon=True)
+            self.keepalive_thread.start()
+            print("Keepalive thread started")
+
+    def _keepalive_worker(self):
+        """Background thread for connection monitoring and keepalive"""
+        while self.keepalive_running:
+            try:
+                current_time = time.time()
+                
+                # Check if connection is stale
+                if self.connected and (current_time - self.last_activity) > self.connection_timeout:
+                    print("Connection appears stale, forcing reconnection...")
+                    self.connected = False
+                    self.connection_event.clear()
+                
+                # Reconnect if needed
+                if not self.connected:
+                    self.connect()
+                
+                # Send keepalive if connected and it's time
+                elif (current_time - self.last_activity) > self.keepalive_interval:
+                    self._send_keepalive()
+                
+                # Wait before next check
+                time.sleep(5)  # Check every 5 seconds
+                
+            except Exception as e:
+                print(f"Keepalive worker error: {e}")
+                time.sleep(10)  # Wait longer on error
+
+    def _send_keepalive(self):
+        """Send a keepalive message to maintain connection"""
         try:
-            if self.ws:
-                self.ws.send(json.dumps(message))
+            if self.ws and self.connected:
+                keepalive_msg = {
+                    'topic': '/system/keepalive',
+                    'value': {'timestamp': time.time(), 'type': 'heartbeat'}
+                }
+                self.ws.send(json.dumps(keepalive_msg))
+                self.last_activity = time.time()
+                print("♥ Keepalive sent")
                 return True
         except Exception as e:
-            print(f"Send error: {e}")
+            print(f"Keepalive send error: {e}")
             self.connected = False
+            self.connection_event.clear()
             return False
-        return False
- 
-    def send_multiple(self, messages):
-        """Send multiple messages using persistent connection"""
+
+    def is_healthy(self):
+        """Check if the connection is healthy"""
         if not self.connected:
-            self.connect()
- 
+            return False
+        
+        # Test the connection by trying to send a ping
         try:
             if self.ws:
-                for message in messages:
+                # Try to get the connection state (this might fail if connection is dead)
+                return True
+        except:
+            self.connected = False
+            self.connection_event.clear()
+            return False
+        
+        return True
+
+    def send_message(self, message, retry_on_failure=True):
+        """Send a single message using persistent connection with retry logic"""
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            # Ensure we're connected
+            if not self.connected:
+                print("Not connected, attempting to reconnect...")
+                self.connect()
+                if not self.connected:
+                    retry_count += 1
+                    continue
+            
+            try:
+                if self.ws:
                     self.ws.send(json.dumps(message))
-                return True
-        except Exception as e:
-            print(f"Send multiple error: {e}")
-            self.connected = False
-            return False
+                    self.last_activity = time.time()
+                    return True
+                    
+            except Exception as e:
+                print(f"Send error (attempt {retry_count + 1}): {e}")
+                self.connected = False
+                self.connection_event.clear()
+                
+                if retry_on_failure and retry_count < max_retries - 1:
+                    retry_count += 1
+                    time.sleep(1)  # Brief delay before retry
+                    continue
+                else:
+                    break
+        
+        print("Failed to send message after retries")
         return False
- 
+
+    def send_multiple(self, messages, retry_on_failure=True):
+        """Send multiple messages using persistent connection with retry logic"""
+        if not messages:
+            return True
+            
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            # Ensure we're connected
+            if not self.connected:
+                print("Not connected, attempting to reconnect...")
+                self.connect()
+                if not self.connected:
+                    retry_count += 1
+                    continue
+            
+            try:
+                if self.ws:
+                    successful_sends = 0
+                    for message in messages:
+                        self.ws.send(json.dumps(message))
+                        successful_sends += 1
+                    
+                    self.last_activity = time.time()
+                    print(f"✓ Successfully sent {successful_sends} messages")
+                    return True
+                    
+            except Exception as e:
+                print(f"Send multiple error (attempt {retry_count + 1}): {e}")
+                self.connected = False
+                self.connection_event.clear()
+                
+                if retry_on_failure and retry_count < max_retries - 1:
+                    retry_count += 1
+                    time.sleep(1)  # Brief delay before retry
+                    continue
+                else:
+                    break
+        
+        print("Failed to send multiple messages after retries")
+        return False
+
+    def get_connection_status(self):
+        """Get detailed connection status"""
+        return {
+            'connected': self.connected,
+            'last_activity': self.last_activity,
+            'time_since_activity': time.time() - self.last_activity,
+            'reconnect_attempts': self.reconnect_attempts,
+            'keepalive_running': self.keepalive_running
+        }
+
     def close(self):
-        """Close the WebSocket connection"""
+        """Close the WebSocket connection and cleanup"""
+        print("Closing WebSocket connection...")
+        self.keepalive_running = False
+        
+        if self.keepalive_thread:
+            self.keepalive_thread.join(timeout=2)
+            
         if self.ws:
-            self.ws.close()
-            self.connected = False
+            try:
+                self.ws.close()
+            except:
+                pass
+            
+        self.connected = False
+        self.connection_event.clear()
+        print("WebSocket connection closed")
  
 class PerspectiveSelector:
     def __init__(self, frame_shape):
@@ -235,6 +412,10 @@ class AprilTagDetector:
  
         # Add running flag for main loop control
         self.running = False
+        
+        # Connection monitoring
+        self.last_connection_check = time.time()
+        self.connection_check_interval = 10  # Check connection every 10 seconds
  
     def start_sender_thread(self):
         """Start the asynchronous message sender thread"""
@@ -245,23 +426,51 @@ class AprilTagDetector:
         print("Sender thread started")
  
     def _sender_worker(self):
-        """Background thread for sending messages"""
+        """Background thread for sending messages with enhanced error handling"""
+        consecutive_failures = 0
+        max_consecutive_failures = 5
+        
         while self.sender_running:
             try:
                 messages = self.message_queue.get(timeout=0.1)
                 if messages:
                     print(f"Sending {len(messages)} messages")
                     success = self.channel_client.send_multiple(messages)
+                    
                     if success:
-                        print("Messages sent successfully")
+                        print("✓ Messages sent successfully")
+                        consecutive_failures = 0  # Reset failure counter
                     else:
-                        print("Failed to send messages")
+                        consecutive_failures += 1
+                        print(f"✗ Failed to send messages (failure #{consecutive_failures})")
+                        
+                        # If too many consecutive failures, wait longer
+                        if consecutive_failures >= max_consecutive_failures:
+                            print(f"Too many consecutive failures, waiting 30 seconds...")
+                            time.sleep(30)
+                            consecutive_failures = 0  # Reset counter
+                            
                 self.message_queue.task_done()
+                
             except queue.Empty:
                 continue
             except Exception as e:
                 print(f"Sender thread error: {e}")
- 
+                consecutive_failures += 1
+                time.sleep(1)  # Brief pause on error
+
+    def check_connection_health(self):
+        """Periodically check and report connection health"""
+        current_time = time.time()
+        if current_time - self.last_connection_check > self.connection_check_interval:
+            status = self.channel_client.get_connection_status()
+            if not status['connected']:
+                print(f"⚠ Connection lost - attempting reconnection...")
+            elif status['time_since_activity'] > 45:
+                print(f"⚠ No activity for {status['time_since_activity']:.1f}s - connection may be stale")
+            
+            self.last_connection_check = current_time
+
     def stop_sender_thread(self):
         """Stop the sender thread"""
         self.sender_running = False
@@ -464,6 +673,9 @@ class AprilTagDetector:
         if not ret:
             print("Failed to capture frame")
             return False
+            
+        # Check connection health periodically
+        self.check_connection_health()
  
         # Store original frame for selection overlay
         display_frame = frame.copy()
@@ -506,6 +718,18 @@ class AprilTagDetector:
         draw_text_with_outline(display_frame, f"Topic: /{self.selected_topic}/All", 
                              (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
  
+        # Add connection status indicator
+        status = self.channel_client.get_connection_status()
+        if status['connected']:
+            connection_color = (0, 255, 0)  # Green
+            connection_text = f"Connected ({status['time_since_activity']:.1f}s ago)"
+        else:
+            connection_color = (0, 0, 255)  # Red
+            connection_text = f"Disconnected (attempt #{status['reconnect_attempts']})"
+        
+        draw_text_with_outline(display_frame, connection_text, 
+                             (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, connection_color, 1)
+ 
         # Add crop mode status with dimensions
         if self.crop_mode_enabled:
             mode_text = f"CROP MODE ({display_frame.shape[1]}x{display_frame.shape[0]})"
@@ -514,12 +738,12 @@ class AprilTagDetector:
             mode_text = f"FULL VIEW ({display_frame.shape[1]}x{display_frame.shape[0]})"
             mode_color = (0, 255, 255)
         draw_text_with_outline(display_frame, mode_text, 
-                             (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.5, mode_color, 1)
+                             (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, mode_color, 1)
  
         # Add scaling info
         scale_text = f"Scale: X={self.scale_x:.2f}, Y={self.scale_y:.2f}"
         draw_text_with_outline(display_frame, scale_text, 
-                             (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
+                             (10, 180), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 255), 1)
  
         # Add selection status
         if self.perspective_selector.selecting:
@@ -577,7 +801,7 @@ class DetectorGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("AprilTag Detector Control")
-        self.root.geometry("300x280")
+        self.root.geometry("300x320")  # Slightly larger to accommodate connection status
  
         # Create detector and channel client
         self.channel_client = wss_CEEO(uri)
@@ -635,6 +859,11 @@ class DetectorGUI:
                                     font=("Arial", 10))
         self.status_label.pack(pady=5)
  
+        # Connection status
+        self.connection_label = tk.Label(self.root, text="Connection: Connecting...", 
+                                        font=("Arial", 10), fg="orange")
+        self.connection_label.pack(pady=2)
+ 
         # Current topic display
         self.topic_label = tk.Label(self.root, text="Current Topic: /Car_Location_1/All", 
                                    font=("Arial", 10))
@@ -684,6 +913,13 @@ class DetectorGUI:
         else:
             status = "Status: Running - Full View"
         self.status_label.config(text=status)
+        
+        # Update connection status
+        conn_status = self.channel_client.get_connection_status()
+        if conn_status['connected']:
+            self.connection_label.config(text="Connection: ✓ Connected", fg="green")
+        else:
+            self.connection_label.config(text=f"Connection: ✗ Reconnecting... (#{conn_status['reconnect_attempts']})", fg="red")
  
     def quit_app(self):
         self.detector.stop_detection()
