@@ -13,16 +13,7 @@ For a complete overview of the project, visit this [Notion page](https://fetlab.
 
 ## What's in this repository
 
-General Tools:
-- Apriltag detection
-- Camera streaming
-- Hardware connection
-- Keyboard control
-
-Pyscript.com code for three game demos:
-- Mario Kart
-- Painting Demo
-- Team Scoring Demo
+**General Tools** (Apriltag detection, Camera streaming, Hardware connection, Keyboard control)
 
 /General Tools
 * /Car
@@ -37,6 +28,8 @@ Pyscript.com code for three game demos:
   * /apriltag_detection
   * /streaming
 * /Webcam Apriltag
+
+**Pyscript.com code for three game demos:**
 
 Mario Kart Demo:
 * /Pyscript Pages
