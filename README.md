@@ -24,36 +24,40 @@ Pyscript.com code for three game demos:
 - Painting Demo
 - Team Scoring Demo
 
-# General Tools
+/General Tools
+* /Car
+  * /Science_Hardware
+  * /SPIKE
+* /Controller
+  * /Science_Hardware
+  * /SPIKE
+    * /talking_on_anyone
+    * /talking_on_a_hub
+* /OpenMV
+  * /apriltag_detection
+  * /streaming
+* /Webcam Apriltag
 
-* [Car/](.\General Tools\Car)
-  * [Science_Hardware/](.\General Tools\Car\Science_Hardware)
-    * [car_talkingonahub.py](.\General Tools\Car\Science_Hardware\car_talkingonahub.py)
-  * [SPIKE/](.\General Tools\Car\SPIKE)
-    * [car_spike.py](.\General Tools\Car\SPIKE\car_spike.py)
-    * [car_web.py](.\General Tools\Car\SPIKE\car_web.py)
-* [Controller/](.\General Tools\Controller)
-  * [Science_Hardware/](.\General Tools\Controller\Science_Hardware)
-    * [controller_talkingonahub.py](.\General Tools\Controller\Science_Hardware\controller_talkingonahub.py)
-  * [SPIKE/](.\General Tools\Controller\SPIKE)
-    * [talking_on_anyone/](.\General Tools\Controller\SPIKE\talking_on_anyone)
-      * [controller_spike.py](.\General Tools\Controller\SPIKE\talking_on_anyone\controller_spike.py)
-      * [controller_web.py](.\General Tools\Controller\SPIKE\talking_on_anyone\controller_web.py)
-    * [talking_on_a_hub/](.\General Tools\Controller\SPIKE\talking_on_a_hub)
-      * [controller_web.py](.\General Tools\Controller\SPIKE\talking_on_a_hub\controller_web.py)
-* [OpenMV/](.\General Tools\OpenMV)
-  * [apriltag_detection/](.\General Tools\OpenMV\apriltag_detection)
-    * [apriltag_identify.py](.\General Tools\OpenMV\apriltag_detection\apriltag_identify.py)
-    * [apriltag_post_to_channel.py](.\General Tools\OpenMV\apriltag_detection\apriltag_post_to_channel.py)
-    * [apriltag_post_to_channel_ALL.py](.\General Tools\OpenMV\apriltag_detection\apriltag_post_to_channel_ALL.py)
-  * [streaming/](.\General Tools\OpenMV\streaming)
-    * [all_in_one_file.py](.\General Tools\OpenMV\streaming\all_in_one_file.py)
-    * [main_code.py](.\General Tools\OpenMV\streaming\main_code.py)
-    * [websocket.py](.\General Tools\OpenMV\streaming\websocket.py)
-* [Webcam Apriltag/](.\General Tools\Webcam Apriltag)
-  * [google_colab_imports.py](.\General Tools\Webcam Apriltag\google_colab_imports.py)
-  * [google_colab_main.py](.\General Tools\Webcam Apriltag\google_colab_main.py)
-  * [vscode_apriltag.py](.\General Tools\Webcam Apriltag\vscode_apriltag.py)
+Mario Kart Demo:
+* /Pyscript Pages
+  * /LEGO Science Car
+  * /LEGO Science Controller
+    * /images
+    * /talking over channels with anything
+  * /OpenMV Stream and WASD
+  * /Talking on Anyone - SPIKE Car
+  * /Talking to a hub - SPIKE Controller
+    * /js
+    * /py
+
+Painting Demo:
+* /Pyscript Pages
+  * /painting_demo
+
+Scoring Demo:
+* /Pyscript Pages
+  * /scorebuttons_demo
+
 
 ## General Setup
 <img width="768" height="960" alt="Demo Field Setup (Marked up)" src="https://github.com/user-attachments/assets/a852e497-4ce9-4f83-8204-5747bae7b5e6" />
